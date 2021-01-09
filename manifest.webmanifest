@@ -1,0 +1,11 @@
+{
+    "name": "Corona Lage",
+    "short_name": "Corona Lage",
+    "start_url": "./?/",
+    "display": "standalone",
+    "icons": [
+        {
+            "src": "icon.png"
+        }
+    ]
+}
