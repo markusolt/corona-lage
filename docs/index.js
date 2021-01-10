@@ -154,6 +154,15 @@
             p.textContent = "Resource does not exist.";
             stage.appendChild(p);
         },
+        home: async (stage) => {
+            let h1 = stage.appendChild(document.createElement("h1"));
+            h1.appendChild(document.createTextNode("Corona Lage"));
+
+            let a = stage.appendChild(document.createElement("a"));
+            a.href = "?/regions/";
+            a.title = "regions";
+            a.textContent = "regions";
+        },
         regions: async (stage) => {
             let h1 = stage.appendChild(document.createElement("h1"));
             h1.appendChild(document.createTextNode("Regions"));
@@ -211,7 +220,9 @@
             let stage = document.body;
             stage.innerHTML = "";
 
-            if (args[0] === "regions") {
+            if (args.length === 0) {
+                pages.home(stage);
+            } else if (args[0] === "regions") {
                 if (args.length === 1) {
                     pages.regions(stage);
                 } else if (args.length === 2) {
