@@ -64,17 +64,23 @@
 
         function table(data, columns) {
             let ret = document.createElement("table");
+            ret.classList.add("air");
 
             let head = ret.createTHead().insertRow();
             for (let col of columns) {
-                head.insertCell().textContent = col;
+                head.insertCell().textContent = col.name;
             }
 
             let body = ret.createTBody();
             for (let rec of data) {
                 let tr = body.insertRow();
                 for (let col of columns) {
-                    tr.insertCell().textContent = rec[col];
+                    let td = tr.insertCell();
+                    td.textContent = rec[col.field];
+
+                    if (col.numeric) {
+                        td.classList.add("numeric");
+                    }
                 }
             }
 
@@ -197,7 +203,12 @@
             let h1 = stage.appendChild(document.createElement("h1"));
             h1.appendChild(document.createTextNode(reg.name));
 
-            stage.appendChild(ui.table(api.cases.by_region(reg.key).map(rec => { return { day: rec.date.week_day, incidence: Math.round(rec.incidence), r: Math.round(rec.r * 1000) / 1000, mortality: Math.round(rec.mortality) }; }), ["day", "incidence", "r", "mortality"]));
+            stage.appendChild(ui.table(api.cases.by_region(reg.key).map(rec => { return { day: rec.date.week_day, cases: rec.cases, incidence: Math.round(rec.incidence), r: (Math.round(rec.r * 1000) / 1000).toFixed(3) }; }), [
+                    { name: "day", field: "day", numeric: false },
+                    { name: "cases", field: "cases", numeric: true },
+                    { name: "incidence", field: "incidence", numeric: true },
+                    { name: "r", field: "r", numeric: true },
+                ]));
         },
     };
 

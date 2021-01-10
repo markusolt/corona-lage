@@ -219,6 +219,7 @@
                 for (let rec of await p_cases) {
                     let date = days[asof.since(day(rec.date))];
                     let reg = regions_map.get(rec.region);
+                    let cases = Number(rec.cases);
                     let w_0 = Number(rec.cases_week_0);
                     let w_7 = Number(rec.cases_week_7);
 
@@ -227,6 +228,7 @@
                     let incidence = exp_base * Math.pow(r, 13) * 700000 / reg.population;
                     let change = incidence * (r - 1);
 
+                    // todo: mortality should probably not be computed per county; the number of deaths per week is too low
                     let d_0 = Number(rec.deaths_week_0);
                     let d_7 = Number(rec.deaths_week_7);
                     let mortality = (d_0 + d_7) * 1000 / (w_0 + w_7);
@@ -234,6 +236,7 @@
                     let sample = {
                         reg,
                         date,
+                        cases,
                         incidence,
                         r,
                         change,
