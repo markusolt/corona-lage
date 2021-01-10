@@ -237,6 +237,7 @@
                         reg,
                         date,
                         cases,
+                        incidence_rollingsum: w_0 * 100000 / reg.population,
                         incidence,
                         r,
                         change,
