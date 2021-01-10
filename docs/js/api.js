@@ -145,7 +145,7 @@
 
         return (async () => {
             {
-                let { asof, cases_table, regions_haystack, timestamp } = await update("");
+                let { asof, cases_table, regions_map, regions_haystack, timestamp } = await update("");
 
                 return {
                     asof,
@@ -155,6 +155,7 @@
                         by_region: (reg_key) => cases_table.filter((rec) => rec.reg.key === reg_key),
                     },
                     regions: {
+                        get: (key) => regions_map.get(key),
                         search: (name) => regions_haystack.find(name),
                     },
                     update: async () => {
@@ -162,6 +163,7 @@
                         if (res) {
                             asof = res.asof;
                             cases_table = res.cases_table;
+                            regions_map = res.regions_map;
                             regions_haystack = res.regions_haystack;
                             timestamp = res.timestamp;
 
@@ -244,6 +246,7 @@
                 return {
                     asof: asof.iso(),
                     cases_table,
+                    regions_map,
                     regions_haystack,
                     timestamp: await p_api_timestamp,
                 };
