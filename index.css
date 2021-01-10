@@ -68,6 +68,57 @@ button.link:hover {
     text-decoration: underline;
 }
 
+table {
+    margin: 0px auto;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+
+table.air {
+    border-collapse: unset;
+    border-spacing: 0.2em;
+    border: none;
+}
+
+tr:nth-child(even) {
+    background-color: var(--c-back-2);
+    border-color: var(--c-border);
+}
+
+table.air tr {
+    background-color: unset;
+}
+
+th,
+td {
+    padding: 0.5em 1em;
+    max-width: 250px;
+    border: 1px solid var(--c-border);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+table.air th,
+table.air td {
+    border: none;
+}
+
+table.air th {
+    font-weight: normal;
+    color: var(--c-front-2);
+}
+
+td.numeric {
+    font-family: monospace;
+    text-align: right;
+}
+
+td.empty {
+    color: var(--c-front-2);
+}
+
 .overflow-hidden {
     overflow: hidden;
 }

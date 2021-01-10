@@ -62,8 +62,30 @@
             return ret;
         }
 
+        function table(data, columns) {
+            let ret = document.createElement("table");
+
+            let head = ret.createTHead().insertRow();
+            for (let col of columns) {
+                head.insertCell().textContent = col;
+            }
+
+            let body = ret.createTBody();
+            for (let rec of data) {
+                let tr = body.insertRow();
+                for (let col of columns) {
+                    tr.insertCell().textContent = rec[col];
+                }
+            }
+
+            ret.createTBody();
+
+            return ret;
+        }
+
         return {
             search_box,
+            table,
         };
     }
 
@@ -124,6 +146,14 @@
     const { ui, spa } = window;
 
     const pages = {
+        unknown: async (stage, args) => {
+            let h1 = stage.appendChild(document.createElement("h1"));
+            h1.appendChild(document.createTextNode("404"));
+
+            let p = document.createElement("p");
+            p.textContent = "Resource does not exist.";
+            stage.appendChild(p);
+        },
         regions: async (stage) => {
             let h1 = stage.appendChild(document.createElement("h1"));
             h1.appendChild(document.createTextNode("Regions"));
@@ -146,7 +176,18 @@
                 }
             }));
             stage.appendChild(output);
-        }
+        },
+        region: async (stage, key) => {
+            const api = await window.api;
+
+            // todo: handle invalid region key
+            let reg = api.regions.get(key);
+
+            let h1 = stage.appendChild(document.createElement("h1"));
+            h1.appendChild(document.createTextNode(reg.name));
+
+            stage.appendChild(ui.table(api.cases.by_region(reg.key).map(rec => { return { day: rec.date.week_day, incidence: Math.round(rec.incidence), r: Math.round(rec.r * 1000) / 1000, mortality: Math.round(rec.mortality) }; }), ["day", "incidence", "r", "mortality"]));
+        },
     };
 
     let base_url = /^([^\?]*)/.exec(window.location.href)[1] + "?";
@@ -168,23 +209,17 @@
             let stage = document.body;
             stage.innerHTML = "";
 
-            pages.regions(stage);
+            if (args[0] === "regions") {
+                if (args.length === 1) {
+                    pages.regions(stage);
+                } else if (args.length === 2) {
+                    pages.region(stage, args[1]);
+                } else {
+                    pages.unknown(stage, args);
+                }
+            } else {
+                pages.unknown(stage, args);
+            }
         }
     );
-}
-
-// todo: remove; for testing purposes only
-{
-    (async () => {
-        if (!window.location.href.startsWith("http://127.0.0.1")) {
-            return;
-        }
-
-        const api = await window.api;
-
-        // todo: remove once the rewrite of the api module is done and it works as intended.
-        console.table(api.regions.search("darmstadt").map(reg => { return { key: reg.key, name: reg.name, population: reg.population, area: reg.area }; }));
-        console.table(api.cases.by_region("DE06411").map(rec => { return { reg: rec.reg.name, date: rec.date.iso, r: Math.round(rec.r * 1000) / 1000, incidence: Math.round(rec.incidence), change: Math.round(rec.change), mortality: Math.round(rec.mortality) }; }));
-        console.table(api.cases.by_region("DE06432").map(rec => { return { reg: rec.reg.name, date: rec.date.iso, r: Math.round(rec.r * 1000) / 1000, incidence: Math.round(rec.incidence), change: Math.round(rec.change), mortality: Math.round(rec.mortality) }; }));
-    })();
 }
