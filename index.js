@@ -203,11 +203,14 @@
             let h1 = stage.appendChild(document.createElement("h1"));
             h1.appendChild(document.createTextNode(reg.name));
 
-            stage.appendChild(ui.table(api.cases.by_region(reg.key).map(rec => { return { day: rec.date.week_day, cases: rec.cases, incidence: Math.round(rec.incidence), r: (Math.round(rec.r * 1000) / 1000).toFixed(3) }; }), [
+            stage.appendChild(ui.table(api.cases.by_region(reg.key).map(rec => { return { date: rec.date.iso, day: rec.date.week_day, cases: rec.cases, inc_rs: Math.round(rec.incidence_rollingsum), inc_exp: Math.round(rec.incidence), r: (Math.round(rec.r * 1000) / 1000).toFixed(3), mortality: Math.round(rec.mortality) }; }), [
+                    { name: "date", field: "date", numeric: false },
                     { name: "day", field: "day", numeric: false },
                     { name: "cases", field: "cases", numeric: true },
-                    { name: "incidence", field: "incidence", numeric: true },
+                    { name: "inc_rs", field: "inc_rs", numeric: true },
+                    { name: "inc_exp", field: "inc_exp", numeric: true },
                     { name: "r", field: "r", numeric: true },
+                    { name: "mortality", field: "mortality", numeric: true },
                 ]));
         },
     };
