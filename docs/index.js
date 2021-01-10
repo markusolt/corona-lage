@@ -171,7 +171,9 @@
                     let { incidence, change, mortality } = api.cases.by_region(reg.key)[0];
 
                     let li = ul.appendChild(document.createElement("li"));
-                    let pre = li.appendChild(document.createElement("pre"));
+                    let a = li.appendChild(document.createElement("a"));
+                    a.href = "?/regions/" + key;
+                    let pre = a.appendChild(document.createElement("pre"));
                     pre.textContent = JSON.stringify({ key, name, incidence: Math.round(incidence), change: Math.round(change), mortality: Math.round(mortality) }, null, 4);
                 }
             }));
