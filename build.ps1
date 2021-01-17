@@ -95,6 +95,7 @@ log "checking for new" "rki_cases.csv" 0 $true;
 $resp = fetch_json -uri "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv?url_only=true";
 if (-not $resp.upToDate) {
     write-error -message "download of `"rki_cases.csv`" is not available!";
+    return;
 }
 
 $timestamp = $resp.sourceLastModified.tostring("o");
