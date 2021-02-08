@@ -206,7 +206,9 @@
                 }
 
                 let asof = day((await p_api_timestamp).substring(0, 10)); // todo: this is inaccurate!
-                let days = new Array(28).fill(0).map((v, i) => {
+
+                // todo: assume we don't have records more than 500 days into the past
+                let days = new Array(500).fill(0).map((v, i) => {
                     let d = asof.add(-i);
                     return {
                         iso: d.iso(),
@@ -229,6 +231,7 @@
                     let change = incidence * (r - 1);
 
                     // todo: mortality should probably not be computed per county; the number of deaths per week is too low
+                    // todo: also, deaths should not be compared with cases on the same day, deaths may lag behind cases
                     let d_0 = Number(rec.deaths_week_0);
                     let d_7 = Number(rec.deaths_week_7);
                     let mortality = (d_0 + d_7) * 1000 / (w_0 + w_7);
