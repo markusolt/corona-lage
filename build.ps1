@@ -4,6 +4,10 @@ $sql = "./sql";
 $target_dir = "../web";
 $dirty = $false;
 
+# todo: dynamically determine $date_first
+# todo: add more robust handling of intermediate missing dates
+$date_first = "2020-10-23";
+
 function create_dir($path) {
     new-item -path $path -itemtype directory -erroraction ignore | out-null;
 }
@@ -114,11 +118,6 @@ if (-not (file_exists -path "$target_dir/api/cases/cases.csv")) {
 
     create_dir -path "$target_dir/api/cases/";
 
-    # todo: dynamically determine $date_first
-    # todo: add more robust handling of intermediate missing dates
-    $date_first = "2020-10-23";
-    $date_last = $date;
-
     log "processing" $date_first 1 $true;
     (get-content -path "sql/cases_init.sql" -raw).replace("{date}", $date_first) | sqlite3 | write-error;
 
@@ -146,10 +145,35 @@ if ($new_cases_available) {
 }
 
 if ($dirty) {
-    log "building" "api/cases/sum.csv";
+    if (-not (file_exists -path "$target_dir/api/cases/sum.csv")) {
+        log "building" "api/cases/sum.csv";
+        log "preparing" $null 1 $true;
 
-    log "processing" $null 1 $true;
-    (get-content -path "sql/cases_sum_build.sql" -raw).replace("{date}", $date) | sqlite3;
+        "region,date,cases,cases_rep_1,cases_rep_2,cases_rep_3,cases_rep_4,cases_rep_5,cases_rep_past,cases_week_0,cases_week_7,cases_total,deaths,deaths_week_0,deaths_week_7,deaths_total" | set-content -path "$target_dir/api/cases/sum.csv";
+
+        $date_last = $date;
+        $i = (get-date -date $date_first).addhours(12);
+        $target = get-date -date $date_last;
+        1..2 | foreach {
+            get-content -path "sql/cases_sum_update_1.sql" -raw | write-output;
+            while ($i -lt $target) {
+                $i = $i.adddays(1);
+                $i_str = (get-date -date $i -asutc -format "o").substring(0, 10);
+
+                log "processing" $i_str 1 $true;
+                (get-content -path "sql/cases_sum_update_2.sql" -raw).replace("{date}", $i_str) | write-output;
+            }
+            get-content -path "sql/cases_sum_update_3.sql" -raw | write-output;
+        } | sqlite3;
+    } else {
+        log "updating" "api/cases/sum.csv";
+        log "preparing" $null 1 $true;
+        log "processing" $date 1 $true;
+        ((get-content -path "sql/cases_sum_update_1.sql" -raw) + (get-content -path "sql/cases_sum_update_2.sql" -raw) + (get-content -path "sql/cases_sum_update_3.sql" -raw)).replace("{date}", $date) | sqlite3;
+    }
+
+    log "building" "api/cases/sum_28.csv";
+    (get-content -path "sql/cases_sum_28_build.sql" -raw).replace("{date}", $date) | sqlite3;
 
     $dirty = $true;
 }
