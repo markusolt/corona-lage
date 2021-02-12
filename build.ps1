@@ -154,7 +154,7 @@ if ($dirty) {
         $date_last = $date;
         $i = (get-date -date $date_first).addhours(12);
         $target = get-date -date $date_last;
-        1..2 | foreach {
+        1..1 | foreach {
             get-content -path "sql/cases_sum_update_1.sql" -raw | write-output;
             while ($i -lt $target) {
                 $i = $i.adddays(1);
