@@ -1,3 +1,4 @@
+const api = use.api;
 const spa = use.spa;
 const leaf = use.leaf;
 const lorem = use.lorem;
@@ -7,7 +8,16 @@ if (sessionStorage.href) {
     sessionStorage.href = "";
 }
 
+api().then((api) => {
+    window.api = api;
+});
+
 {
+    document.body.textContent = "";
+    let page = document.body.appendChild(document.createElement("main"));
+    let footer = document.body.appendChild(document.createElement("footer"));
+    footer.textContent = "markus";
+
     let origin = location.origin + "{HOME}";
     spa.install(
         (url) => {
@@ -44,16 +54,11 @@ if (sessionStorage.href) {
             return null;
         },
         (args) => {
-            document.body.innerHTML = "";
-
-            let main = document.body.appendChild(document.createElement("main"));
-            leaf(main).append(router(args));
-            if (main.childNodes.length === 0) {
-                leaf(main).h1("Status 404").p("There is nothing here, are you lost?").p(leaf().a("Go home", "{HOME}/").t("."));
+            page.textContent = "";
+            leaf(page).append(router(args));
+            if (page.childNodes.length === 0) {
+                leaf(page).h1("Status 404").p("There is nothing here, are you lost?").p(leaf().a("Go home", "{HOME}/").t("."));
             }
-
-            let footer = document.body.appendChild(document.createElement("footer"));
-            footer.textContent = "markus";
         }
     );
 }
@@ -62,6 +67,8 @@ function router(args) {
     if (args.path.length === 0) {
         return leaf()
             .h1("home")
+            .a("/foo", "{HOME}/foo")
+            .a("/bar", "{HOME}/bar")
             .append(router({path: ["foo"]}));
     } else if (args.path[0] !== "foo") {
         return leaf()
