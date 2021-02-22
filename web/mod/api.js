@@ -100,6 +100,10 @@ class Api {
         return true;
     }
 
+    updated() {
+        return new Date(data.updated);
+    }
+
     data() {
         return data;
     }

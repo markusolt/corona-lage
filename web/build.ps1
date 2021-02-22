@@ -17,7 +17,7 @@ $modules | foreach {
 
     $modules | foreach {
         $name = $_.basename -replace "^[^a-zA-Z_]+|[^a-zA-Z0-9_]+", "";
-        $src = (get-content -raw $_.fullname).replace("{HOME}", $home_url);
+        $src = (get-content -raw $_.fullname).replace("{HOME}", $home_url).replace("{DATE}", (get-date -format "o").substring(0, 19));
 
         "use.$name = (() => {$src})();" | write-output;
     } | write-output;

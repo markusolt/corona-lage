@@ -12,12 +12,24 @@ class Leaf {
         return this.append(append(document.createElement("h1"), content), func);
     }
 
+    h2(content, func) {
+        return this.append(append(document.createElement("h2"), content), func);
+    }
+
+    h3(content, func) {
+        return this.append(append(document.createElement("h3"), content), func);
+    }
+
     p(content, func) {
         return this.append(append(document.createElement("p"), content), func);
     }
 
     t(content, func) {
         return this.append(document.createTextNode(content), func);
+    }
+
+    br(func) {
+        return this.append(document.createElement("br"), func);
     }
 
     i(content, func) {

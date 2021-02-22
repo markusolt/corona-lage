@@ -8,15 +8,46 @@ if (sessionStorage.href) {
     sessionStorage.href = "";
 }
 
+let on_api_update = [];
 api().then((api) => {
     window.api = api;
+    on_api_update.forEach((func) => {
+        func(api);
+    });
 });
 
 {
     document.body.textContent = "";
     let page = document.body.appendChild(document.createElement("main"));
-    let footer = document.body.appendChild(document.createElement("footer"));
-    footer.textContent = "markus";
+    let footer = document.body.appendChild(document.createElement("footer")).appendChild(document.createElement("div"));
+    footer.classList.add("signature");
+    leaf(footer)
+        .t("data: ")
+        .append(document.createElement("time"), (node) => {
+            node.textContent = "...";
+            on_api_update.push((api) => {
+                let d = api.updated();
+                node.dateTime = d;
+                node.textContent = d.toISOString().substring(0, 19).replace("T", " ");
+            });
+        })
+        .br()
+        .t("website: ")
+        .append(document.createElement("time"), (node) => {
+            let d = new Date("{DATE}");
+            node.dateTime = d;
+            node.textContent = d.toISOString().substring(0, 19).replace("T", " ");
+        })
+        .br()
+        .t("source: ")
+        .a("github.com", "https://github.com/markusolt/corona-lage", (node) => {
+            node.classList.add("subtle");
+        })
+        .br()
+        .t("author: ")
+        .a("markus", "mailto:markus@blaumond.net", (node) => {
+            node.classList.add("subtle");
+        });
 
     let origin = location.origin + "{HOME}";
     spa.install(
@@ -64,17 +95,9 @@ api().then((api) => {
 }
 
 function router(args) {
-    if (args.path.length === 0) {
+    if (args.path.length === 1 && args.path[0] === "greet") {
         return leaf()
-            .h1("home")
-            .a("/foo", "{HOME}/foo")
-            .a("/bar", "{HOME}/bar")
-            .append(router({path: ["foo"]}));
-    } else if (args.path[0] !== "foo") {
-        return leaf()
-            .h1(JSON.stringify(args, null, 4), (node) => {
-                node.style.whiteSpace = "pre";
-            })
+            .h1("Welcome")
             .p(
                 leaf()
                     .t("Welcome to ")
@@ -89,8 +112,13 @@ function router(args) {
                                 .replace(/ /g, "/")
                     )
                     .t(".")
-            )
-            .append(router({path: [], query: {}}))
+            );
+    } else if (args.path[0] !== "foo") {
+        return leaf()
+            .append(router({path: ["greet"], query: {}}))
+            .p(JSON.stringify(args, null, 4), (node) => {
+                node.style.whiteSpace = "pre";
+            })
             .ul(new Array(rand_between(3, 12)).fill(null).map(() => lorem(rand_between(5, 20))))
             .p(lorem(rand_between(30, 70)));
     }
