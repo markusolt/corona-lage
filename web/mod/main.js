@@ -1,4 +1,5 @@
 const spa = use.spa;
+const leaf = use.leaf;
 const lorem = use.lorem;
 
 if (sessionStorage.href) {
@@ -11,39 +12,66 @@ if (sessionStorage.href) {
     spa.install(
         (url) => {
             if (url.startsWith(origin)) {
-                return url.substring(origin.length);
+                let rel_url = url.substring(origin.length);
+
+                let path = split_at(rel_url, "?")[0]
+                    .split("/")
+                    .map((w) =>
+                        decodeURIComponent(w)
+                            .toLowerCase()
+                            .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, "")
+                    )
+                    .filter((w) => w.length > 0);
+                let query = Object.fromEntries(
+                    split_at(split_at(rel_url, "?")[1], "#")[0]
+                        .split("&")
+                        .map((w) => split_at(w, "="))
+                        .map(([key, val]) => [
+                            decodeURIComponent(key)
+                                .toLowerCase()
+                                .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, ""),
+                            decodeURIComponent(val).trim() || true,
+                        ])
+                        .filter(([key, val]) => key.length > 0)
+                );
+
+                return {
+                    path,
+                    query,
+                };
+            }
+            return null;
+
+            function split_at(str, del) {
+                let i = (str.indexOf(del) + str.length + 1) % (str.length + 1);
+                return [str.substring(0, i), str.substring(i + 1)];
             }
         },
         (args) => {
             document.body.innerHTML = "";
             let main = document.body.appendChild(document.createElement("main"));
 
-            main.appendChild(document.createElement("h1")).textContent = args;
-            let intro = main.appendChild(document.createElement("p"));
-            intro.appendChild(document.createTextNode("Welcome to "));
-            intro.appendChild(document.createElement("i")).textContent = "Corona Lage";
-            intro.appendChild(
-                document.createTextNode(". This is the daily update of Covid-19 incidence values across Germany. You can visit ")
-            );
-            intro.appendChild(hlink("the overview page", "{HOME}/overview"));
-            intro.appendChild(document.createTextNode(" for more details. Or go to a "));
-            intro.appendChild(
-                hlink(
-                    "random page",
-                    "{HOME}/" +
-                        lorem(rand_between(0, 4))
-                            .toLowerCase()
-                            .replace(/[^a-z ]+/g, "")
-                            .replace(/ /g, "/")
+            leaf(main)
+                .h1(JSON.stringify(args, null, 4), (node) => {
+                    node.style.whiteSpace = "pre";
+                })
+                .p(
+                    leaf()
+                        .t("Welcome to ")
+                        .i("Corona Lage")
+                        .t(". This is your daily update of Covid-19 incidence values across Germany. Go ahead and visit a ")
+                        .a(
+                            "random page",
+                            "{HOME}/" +
+                                lorem(rand_between(0, 4))
+                                    .toLowerCase()
+                                    .replace(/[^a-z ]+/g, "")
+                                    .replace(/ /g, "/")
+                        )
+                        .t(".")
                 )
-            );
-            intro.appendChild(document.createTextNode("."));
-
-            let ul = main.appendChild(document.createElement("ul"));
-            for (let i = rand_between(3, 12); i > 0; i--) {
-                ul.appendChild(document.createElement("li")).textContent = lorem(rand_between(5, 20));
-            }
-            main.appendChild(document.createElement("p")).textContent = lorem(rand_between(30, 70));
+                .ul(new Array(rand_between(3, 12)).fill(null).map(() => lorem(rand_between(5, 20))))
+                .p(lorem(rand_between(30, 70)));
 
             let footer = document.body.appendChild(document.createElement("footer"));
             footer.textContent = "markus";
@@ -63,16 +91,3 @@ function hlink(title, href) {
 
     return a;
 }
-
-/*
-let page = Page.empty();
-page
-    .header()
-    .title("Welcome")
-    .text("lorem ipsum")
-    .a("click me", "/target")
-    .text(".")
-    .p()
-    .inline("/legal")
-    .footer();
-*/
