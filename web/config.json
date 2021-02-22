@@ -1,0 +1,10 @@
+{
+    "modules": [
+        "csv",
+        "day",
+        "hay",
+        "spa",
+        "lorem",
+        "main"
+    ]
+}
