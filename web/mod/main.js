@@ -3,11 +3,6 @@ const spa = use.spa;
 const leaf = use.leaf;
 const lorem = use.lorem;
 
-if (sessionStorage.href) {
-    history.replaceState(null, "", sessionStorage.href);
-    sessionStorage.href = "";
-}
-
 let on_api_update = [];
 api().then((api) => {
     window.api = api;
@@ -95,36 +90,96 @@ api().then((api) => {
 }
 
 function router(args) {
-    if (args.path.length === 1 && args.path[0] === "greet") {
+    let path = "/" + args.path.join("/");
+    if (path === "/") {
         return leaf()
             .h1("Welcome")
             .p(
                 leaf()
                     .t("Welcome to ")
                     .i("Corona Lage")
-                    .t(". This is your daily update of Covid-19 incidence values across Germany. Go ahead and visit a ")
-                    .a(
-                        "random page",
-                        "{HOME}/" +
-                            lorem(rand_between(0, 4))
-                                .toLowerCase()
-                                .replace(/[^a-z ]+/g, "")
-                                .replace(/ /g, "/")
-                    )
+                    .t(". This is your daily update of Covid-19 incidence values across Germany. Go ahead and start ")
+                    .a("here", "{HOME}/incidence")
                     .t(".")
-            );
-    } else if (args.path[0] !== "foo") {
-        return leaf()
-            .append(router({path: ["greet"], query: {}}))
-            .p(JSON.stringify(args, null, 4), (node) => {
-                node.style.whiteSpace = "pre";
-            })
-            .ul(new Array(rand_between(3, 12)).fill(null).map(() => lorem(rand_between(5, 20))))
-            .p(lorem(rand_between(30, 70)));
+            )
+            .ul([
+                leaf().a("/cases", "{HOME}/cases"),
+                leaf().a("/incidence", "{HOME}/incidence"),
+                leaf().a("/cases-rolling-avg", "{HOME}/cases-rolling-avg"),
+            ]);
+    }
+    if (path === "/cases") {
+        return metric_page({name: "Number of Positive Test Results", field: "cases", description: leaf().p("")});
+    }
+    if (path === "/cases-rolling-avg") {
+        return metric_page({
+            name: "Cases - Rolling Average per Capita",
+            field: "cases_rolling_avg",
+            description: leaf().p(
+                leaf().t("The average ").a("number of cases", "{HOME}/cases").t(" for the past 7 days per 100.000 people.")
+            ),
+        });
+    }
+    if (path === "/incidence") {
+        return metric_page({name: "Incidence", field: "incidence", description: leaf().p("")});
     }
 
     console.error("unknown resource: %o", {path: "{HOME}/" + args.path.join("/")});
     return leaf();
+
+    function metric_page({name, field, description, precision}) {
+        let data = api().then((api) =>
+            api
+                .data()
+                .cases.filter((rec) => rec.date.rel === 0)
+                .map((rec) => {
+                    return {reg_key: rec.reg.key, reg: rec.reg.name, val: rec[field]};
+                })
+                .sort((a, b) => b.val - a.val)
+        );
+
+        return leaf()
+            .h1(name)
+            .append(description)
+            .append(document.createElement("div"), (node) => {
+                data.then((table) => {
+                    let rec = table.find((rec) => rec.reg_key.length === 2);
+                    leaf(node)
+                        .t(rec.reg + ": ")
+                        .b(rec.val.toFixed(precision));
+                });
+            })
+            .h3("Bundeslander")
+            .ul([], (node) => {
+                data.then((table) => {
+                    for (let rec of table) {
+                        if (rec.reg_key.length === 4) {
+                            let li = document.createElement("li");
+                            leaf(li)
+                                .t(rec.reg + ": ")
+                                .b(rec.val.toFixed(precision));
+
+                            node.appendChild(li);
+                        }
+                    }
+                });
+            })
+            .h3("Cities")
+            .ul([], (node) => {
+                data.then((table) => {
+                    for (let rec of table) {
+                        if (rec.reg_key.length === 7) {
+                            let li = document.createElement("li");
+                            leaf(li)
+                                .t(rec.reg + ": ")
+                                .b(rec.val.toFixed(precision));
+
+                            node.appendChild(li);
+                        }
+                    }
+                });
+            });
+    }
 }
 
 function split_at(str, del) {
@@ -144,3 +199,33 @@ function hlink(title, href) {
 
     return a;
 }
+
+/*
+todo:
+
+[x] import box module
+[ ] rewrite api module
+    [ ] regions
+    [ ] metrics
+[ ] create metric abstraction
+[ ] rewrite router
+[ ] move things from main into separate modules
+[ ] create the following pages
+    [ ] /
+    [ ] /metric #{mtrc}
+    [ ] /metric/{mtrc}
+    [ ] /metric/{mtrc}/synopsis
+    [ ] /metric/{mtrc}/description
+    [ ] /region ?filter={}
+    [ ] /region/{reg} #{mtrc}
+    [ ] /region/{reg}/synopsis
+    [ ] /region/{reg}/news #{date}
+    [ ] /region/{reg}/news/{date}
+    [ ] /blog #art
+    [ ] /blog/{art}
+[ ] add variable definitions to config.json and refactor build.ps1
+[ ] add an optional arg "?day={date}"
+    [ ] show a warning
+    [ ] persist this value across navigation
+
+*/

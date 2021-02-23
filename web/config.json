@@ -1,5 +1,6 @@
 {
     "modules": [
+        "box",
         "csv",
         "day",
         "hay",

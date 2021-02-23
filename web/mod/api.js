@@ -78,7 +78,7 @@ class Api {
                 reg,
                 date,
                 cases,
-                incidence_rollingsum: (w_0 * 100000) / reg.population,
+                cases_rolling_avg: (w_0 * 100000) / reg.population,
                 incidence,
                 r,
                 change,
@@ -94,7 +94,7 @@ class Api {
             asof,
             regions_map,
             regions_haystack,
-            cases_table,
+            cases: cases_table,
         };
 
         return true;

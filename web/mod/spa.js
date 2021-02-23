@@ -1,6 +1,11 @@
 let _filter = () => false;
 let _reload = () => {};
 
+if (sessionStorage.href) {
+    history.replaceState(null, "", sessionStorage.href);
+    sessionStorage.href = "";
+}
+
 window.addEventListener("click", (event) => {
     let anchor;
     let args;
