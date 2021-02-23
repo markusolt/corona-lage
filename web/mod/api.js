@@ -1,9 +1,11 @@
+const box = use.box;
 const csv = use.csv;
 const day = use.day;
 const hay = use.hay;
 
 let data_updated = null;
 let data = null;
+let access = box();
 
 class Api {
     constructor() {}
@@ -97,6 +99,7 @@ class Api {
             cases: cases_table,
         };
 
+        access.touch();
         return true;
     }
 
@@ -107,13 +110,6 @@ class Api {
     data() {
         return data;
     }
-}
-
-let data_ready = new Api().update().then((success) => (success ? true : new Promise(() => {})));
-
-async function api() {
-    await data_ready;
-    return new Api();
 }
 
 async function fetch_txt(path) {
@@ -130,4 +126,11 @@ async function fetch_csv(path) {
     return csv(await fetch_txt(path));
 }
 
-return api;
+(async () => {
+    let api = new Api();
+    if (await api.update()) {
+        access.set(api);
+    }
+})();
+
+return access;

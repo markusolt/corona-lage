@@ -4,7 +4,7 @@ const leaf = use.leaf;
 const lorem = use.lorem;
 
 let on_api_update = [];
-api().then((api) => {
+api.then((api) => {
     window.api = api;
     on_api_update.forEach((func) => {
         func(api);
@@ -128,7 +128,7 @@ function router(args) {
     return leaf();
 
     function metric_page({name, field, description, precision}) {
-        let data = api().then((api) =>
+        let data = api.then((api) =>
             api
                 .data()
                 .cases.filter((rec) => rec.date.rel === 0)

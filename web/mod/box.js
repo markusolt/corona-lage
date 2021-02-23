@@ -41,9 +41,17 @@ class Box {
 
     then(func) {
         if (this._val !== undefined) {
-            func(this._val);
+            return thenable(func(this._val));
         } else {
-            this._subs_once.push(resolve);
+            let resolver;
+            let ret = new Promise((res) => {
+                resolver = res;
+            });
+
+            this._subs_once.push((val) => {
+                resolver(func(val));
+            });
+            return ret;
         }
     }
 
