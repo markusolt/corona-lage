@@ -36,9 +36,12 @@ router.add("/metric/{}", (metric_name, args) => {
     );
 
     return leaf()
-        .h1(mtrc.name)
-        .append(mtrc.synopsis())
-        .append(mtrc.description())
+        .append(router(["metric", metric_name, "synopsis"], {}))
+        .p(
+            leaf()
+                .a("Tell me more", "{HOME}/metric/" + metric_name + "/explanation")
+                .t(".")
+        )
         .append(document.createElement("div"), (node) => {
             data.then((table) => {
                 let rec = table.find((rec) => rec.reg.key.length === 2);
@@ -89,4 +92,22 @@ router.add("/metric/{}", (metric_name, args) => {
                 }
             });
         });
+});
+
+router.add("metric/{}/synopsis", (metric_name, args) => {
+    if (!metrics.has(metric_name)) {
+        return null;
+    }
+
+    let mtrc = metrics.get(metric_name);
+    return leaf().h1(mtrc.name).append(mtrc.synopsis());
+});
+
+router.add("metric/{}/explanation", (metric_name, args) => {
+    if (!metrics.has(metric_name)) {
+        return null;
+    }
+
+    let mtrc = metrics.get(metric_name);
+    return router(["metric", metric_name, "synopsis"]).append(mtrc.explanation());
 });

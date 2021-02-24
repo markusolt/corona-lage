@@ -110,14 +110,16 @@ todo:
 [x] rewrite api module
 [x] create metric abstraction
 [x] rewrite router
-[ ] move things from main into separate modules
 [x] auto reload the page on api update
+[ ] create specialized rendering abstractions
+    [ ] metric hyperlink
+    [ ] replace inline urls with js functions
 [ ] create the following pages
-    [ ] /
+    [x] /
     [ ] /metric #{mtrc}
-    [ ] /metric/{mtrc}
-    [ ] /metric/{mtrc}/synopsis
-    [ ] /metric/{mtrc}/description
+    [x] /metric/{mtrc}
+    [x] /metric/{mtrc}/synopsis
+    [x] /metric/{mtrc}/explanation
     [ ] /region ?filter={}
     [ ] /region/{reg} #{mtrc}
     [ ] /region/{reg}/synopsis
@@ -125,6 +127,7 @@ todo:
     [ ] /region/{reg}/news/{date}
     [ ] /blog #art
     [ ] /blog/{art}
+[ ] remove main module
 [ ] add variable definitions to config.json and refactor build.ps1
 [ ] add an optional arg "?day={date}"
     [ ] show a warning

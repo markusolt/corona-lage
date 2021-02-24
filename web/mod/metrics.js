@@ -9,7 +9,7 @@ metrics.set("cases", {
     },
     precision: 0,
     synopsis: () => leaf(),
-    description: () => leaf(),
+    explanation: () => leaf(),
 });
 
 metrics.set("reproduction", {
@@ -27,7 +27,7 @@ metrics.set("reproduction", {
                 .i("four days")
                 .t(".")
         ),
-    description: () => leaf(),
+    explanation: () => leaf().t("<explanation>"),
 });
 
 metrics.set("incidence", {
@@ -41,7 +41,7 @@ metrics.set("incidence", {
     },
     precision: 0,
     synopsis: () => leaf(),
-    description: () => leaf(),
+    explanation: () => leaf(),
 });
 
 metrics.set("incidence-rki", {
@@ -52,7 +52,7 @@ metrics.set("incidence-rki", {
     precision: 0,
     synopsis: () =>
         leaf().p(leaf().t("The average ").a("number of cases", "{HOME}/metric/cases").t(" for the past 7 days per 100.000 people.")),
-    description: () => leaf(),
+    explanation: () => leaf(),
 });
 
 return metrics;
