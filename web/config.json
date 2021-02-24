@@ -4,11 +4,13 @@
         "csv",
         "day",
         "hay",
+        "lorem",
         "leaf",
         "api",
         "metrics",
+        "router",
+        "routes",
         "spa",
-        "lorem",
         "main"
     ]
 }
