@@ -1,5 +1,6 @@
-const api = use.api;
 const spa = use.spa;
+const api = use.api;
+const metrics = use.metrics;
 const leaf = use.leaf;
 const lorem = use.lorem;
 
@@ -111,63 +112,32 @@ function router(args) {
                     .a("here", "{HOME}/incidence")
                     .t(".")
             )
-            .ul([
-                leaf().a("/cases", "{HOME}/cases"),
-                leaf().a("/incidence", "{HOME}/incidence"),
-                leaf().a("/cases-rolling-avg", "{HOME}/cases-rolling-avg"),
-            ]);
+            .ul(Array.from(metrics.entries()).map(([key, mtrc]) => leaf().a(mtrc.name, "{HOME}/metric/" + key)));
     }
-    if (path === "/cases") {
-        return metric_page({name: "Number of Positive Test Results", mtrc: (sample) => sample.measures.cases, description: leaf().p("")});
-    }
-    if (path === "/cases-rolling-avg") {
-        return metric_page({
-            name: "Cases - Rolling Average per Capita",
-            mtrc: (sample) => (sample.measures.cases_w_0 * 100000) / sample.reg.population,
-            description: leaf().p(
-                leaf().t("The average ").a("number of cases", "{HOME}/cases").t(" for the past 7 days per 100.000 people.")
-            ),
-        });
-    }
-    if (path === "/incidence") {
-        return metric_page({
-            name: "Incidence",
-            mtrc: (sample) => {
-                let r = Math.pow(sample.measures.cases_w_0 / sample.measures.cases_w_7, 1 / 7);
-                let exp_base =
-                    sample.measures.cases_w_7 /
-                    (Math.pow(r, 0) + Math.pow(r, 1) + Math.pow(r, 2) + Math.pow(r, 3) + Math.pow(r, 4) + Math.pow(r, 5) + Math.pow(r, 6));
-                return (exp_base * Math.pow(r, 13) * 700000) / sample.reg.population;
-            },
-            description: leaf().p(""),
-        });
-    }
-
-    console.error("unknown resource: %o", {path: "{HOME}/" + args.path.join("/")});
-    return leaf();
-
-    function metric_page({name, mtrc, description, precision}) {
+    if (args.path.length === 2 && args.path[0] === "metric" && metrics.has(args.path[1])) {
+        let mtrc = metrics.get(args.path[1]);
         let data = api.then((api) =>
             api
                 .samples({day: 0})
-                .map((rec) => {
+                .map((sample) => {
                     return {
-                        reg: rec.reg,
-                        val: mtrc(rec),
+                        reg: sample.reg,
+                        val: mtrc.eval(sample),
                     };
                 })
                 .sort((a, b) => b.val - a.val)
         );
 
         return leaf()
-            .h1(name)
-            .append(description)
+            .h1(mtrc.name)
+            .append(mtrc.synopsis())
+            .append(mtrc.description())
             .append(document.createElement("div"), (node) => {
                 data.then((table) => {
                     let rec = table.find((rec) => rec.reg.key.length === 2);
                     leaf(node)
                         .t(rec.reg.name + ": ")
-                        .b(rec.val.toFixed(precision));
+                        .b(rec.val.toFixed(0));
                 });
             })
             .h3("Bundeslander")
@@ -178,7 +148,7 @@ function router(args) {
                             let li = document.createElement("li");
                             leaf(li)
                                 .t(rec.reg.name + ": ")
-                                .b(rec.val.toFixed(precision));
+                                .b(rec.val.toFixed(0));
 
                             node.appendChild(li);
                         }
@@ -193,7 +163,7 @@ function router(args) {
                         let li = document.createElement("li");
                         leaf(li)
                             .t(rec.reg.name + ": ")
-                            .b(rec.val.toFixed(precision));
+                            .b(rec.val.toFixed(0));
 
                         node.appendChild(li);
                     }
@@ -206,13 +176,16 @@ function router(args) {
                         let li = document.createElement("li");
                         leaf(li)
                             .t(rec.reg.name + ": ")
-                            .b(rec.val.toFixed(precision));
+                            .b(rec.val.toFixed(0));
 
                         node.appendChild(li);
                     }
                 });
             });
     }
+
+    console.error("unknown resource: %o", {path: "{HOME}/" + args.path.join("/")});
+    return leaf();
 }
 
 function split_at(str, del) {
@@ -238,7 +211,7 @@ todo:
 
 [x] import box module
 [x] rewrite api module
-[ ] create metric abstraction
+[x] create metric abstraction
 [ ] rewrite router
 [ ] move things from main into separate modules
 [x] auto reload the page on api update
