@@ -72,6 +72,8 @@ const lorem = use.lorem;
             return null;
         },
         (args) => {
+            api_update();
+
             page.textContent = "";
             leaf(page).append(router(args));
             if (page.childNodes.length === 0) {
@@ -80,6 +82,21 @@ const lorem = use.lorem;
         }
     );
 }
+
+let last_api_update = new Date();
+function api_update() {
+    if (api.value && new Date() - last_api_update > 60000) {
+        last_api_update = new Date();
+        api.value.update().then((success) => {
+            if (success) {
+                spa.refresh();
+            }
+        });
+    }
+}
+window.addEventListener("focus", () => {
+    api_update();
+});
 
 function router(args) {
     let path = "/" + args.path.join("/");
@@ -224,6 +241,7 @@ todo:
 [ ] create metric abstraction
 [ ] rewrite router
 [ ] move things from main into separate modules
+[x] auto reload the page on api update
 [ ] create the following pages
     [ ] /
     [ ] /metric #{mtrc}
