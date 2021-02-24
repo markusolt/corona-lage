@@ -137,7 +137,7 @@ function router(args) {
                     let rec = table.find((rec) => rec.reg.key.length === 2);
                     leaf(node)
                         .t(rec.reg.name + ": ")
-                        .b(rec.val.toFixed(0));
+                        .b(rec.val.toFixed(mtrc.precision));
                 });
             })
             .h3("Bundeslander")
@@ -148,7 +148,7 @@ function router(args) {
                             let li = document.createElement("li");
                             leaf(li)
                                 .t(rec.reg.name + ": ")
-                                .b(rec.val.toFixed(0));
+                                .b(rec.val.toFixed(mtrc.precision));
 
                             node.appendChild(li);
                         }
@@ -163,7 +163,7 @@ function router(args) {
                         let li = document.createElement("li");
                         leaf(li)
                             .t(rec.reg.name + ": ")
-                            .b(rec.val.toFixed(0));
+                            .b(rec.val.toFixed(mtrc.precision));
 
                         node.appendChild(li);
                     }
@@ -176,7 +176,7 @@ function router(args) {
                         let li = document.createElement("li");
                         leaf(li)
                             .t(rec.reg.name + ": ")
-                            .b(rec.val.toFixed(0));
+                            .b(rec.val.toFixed(mtrc.precision));
 
                         node.appendChild(li);
                     }
