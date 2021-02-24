@@ -3,14 +3,6 @@ const spa = use.spa;
 const leaf = use.leaf;
 const lorem = use.lorem;
 
-let on_api_update = [];
-api.then((api) => {
-    window.api = api;
-    on_api_update.forEach((func) => {
-        func(api);
-    });
-});
-
 {
     document.body.textContent = "";
     let page = document.body.appendChild(document.createElement("main"));
@@ -20,8 +12,8 @@ api.then((api) => {
         .t("data: ")
         .append(document.createElement("time"), (node) => {
             node.textContent = "...";
-            on_api_update.push((api) => {
-                let d = api.updated();
+            api.watch((api) => {
+                let d = api.updated;
                 node.dateTime = d;
                 node.textContent = d.toISOString().substring(0, 19).replace("T", " ");
             });
@@ -109,31 +101,43 @@ function router(args) {
             ]);
     }
     if (path === "/cases") {
-        return metric_page({name: "Number of Positive Test Results", field: "cases", description: leaf().p("")});
+        return metric_page({name: "Number of Positive Test Results", mtrc: (sample) => sample.measures.cases, description: leaf().p("")});
     }
     if (path === "/cases-rolling-avg") {
         return metric_page({
             name: "Cases - Rolling Average per Capita",
-            field: "cases_rolling_avg",
+            mtrc: (sample) => (sample.measures.cases_w_0 * 100000) / sample.reg.population,
             description: leaf().p(
                 leaf().t("The average ").a("number of cases", "{HOME}/cases").t(" for the past 7 days per 100.000 people.")
             ),
         });
     }
     if (path === "/incidence") {
-        return metric_page({name: "Incidence", field: "incidence", description: leaf().p("")});
+        return metric_page({
+            name: "Incidence",
+            mtrc: (sample) => {
+                let r = Math.pow(sample.measures.cases_w_0 / sample.measures.cases_w_7, 1 / 7);
+                let exp_base =
+                    sample.measures.cases_w_7 /
+                    (Math.pow(r, 0) + Math.pow(r, 1) + Math.pow(r, 2) + Math.pow(r, 3) + Math.pow(r, 4) + Math.pow(r, 5) + Math.pow(r, 6));
+                return (exp_base * Math.pow(r, 13) * 700000) / sample.reg.population;
+            },
+            description: leaf().p(""),
+        });
     }
 
     console.error("unknown resource: %o", {path: "{HOME}/" + args.path.join("/")});
     return leaf();
 
-    function metric_page({name, field, description, precision}) {
+    function metric_page({name, mtrc, description, precision}) {
         let data = api.then((api) =>
             api
-                .data()
-                .cases.filter((rec) => rec.date.rel === 0)
+                .samples({day: 0})
                 .map((rec) => {
-                    return {reg_key: rec.reg.key, reg: rec.reg.name, val: rec[field]};
+                    return {
+                        reg: rec.reg,
+                        val: mtrc(rec),
+                    };
                 })
                 .sort((a, b) => b.val - a.val)
         );
@@ -143,9 +147,9 @@ function router(args) {
             .append(description)
             .append(document.createElement("div"), (node) => {
                 data.then((table) => {
-                    let rec = table.find((rec) => rec.reg_key.length === 2);
+                    let rec = table.find((rec) => rec.reg.key.length === 2);
                     leaf(node)
-                        .t(rec.reg + ": ")
+                        .t(rec.reg.name + ": ")
                         .b(rec.val.toFixed(precision));
                 });
             })
@@ -153,10 +157,10 @@ function router(args) {
             .ul([], (node) => {
                 data.then((table) => {
                     for (let rec of table) {
-                        if (rec.reg_key.length === 4) {
+                        if (rec.reg.key.length === 4) {
                             let li = document.createElement("li");
                             leaf(li)
-                                .t(rec.reg + ": ")
+                                .t(rec.reg.name + ": ")
                                 .b(rec.val.toFixed(precision));
 
                             node.appendChild(li);
@@ -167,15 +171,27 @@ function router(args) {
             .h3("Cities")
             .ul([], (node) => {
                 data.then((table) => {
-                    for (let rec of table) {
-                        if (rec.reg_key.length === 7) {
-                            let li = document.createElement("li");
-                            leaf(li)
-                                .t(rec.reg + ": ")
-                                .b(rec.val.toFixed(precision));
+                    table = table.filter((rec) => rec.reg.key.length === 7);
+                    for (let rec of table.slice(0, 10)) {
+                        let li = document.createElement("li");
+                        leaf(li)
+                            .t(rec.reg.name + ": ")
+                            .b(rec.val.toFixed(precision));
 
-                            node.appendChild(li);
-                        }
+                        node.appendChild(li);
+                    }
+
+                    let li = document.createElement("li");
+                    li.textContent = "...";
+                    node.appendChild(li);
+
+                    for (let rec of table.slice(table.length - 10)) {
+                        let li = document.createElement("li");
+                        leaf(li)
+                            .t(rec.reg.name + ": ")
+                            .b(rec.val.toFixed(precision));
+
+                        node.appendChild(li);
                     }
                 });
             });
@@ -204,9 +220,7 @@ function hlink(title, href) {
 todo:
 
 [x] import box module
-[ ] rewrite api module
-    [ ] regions
-    [ ] metrics
+[x] rewrite api module
 [ ] create metric abstraction
 [ ] rewrite router
 [ ] move things from main into separate modules
@@ -227,5 +241,6 @@ todo:
 [ ] add an optional arg "?day={date}"
     [ ] show a warning
     [ ] persist this value across navigation
+[ ] offline support
 
 */
