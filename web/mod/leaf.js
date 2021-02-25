@@ -24,6 +24,10 @@ class Leaf {
         return this.append(append(document.createElement("p"), content), func);
     }
 
+    div(content, func) {
+        return this.append(append(document.createElement("div"), content), func);
+    }
+
     t(content, func) {
         return this.append(document.createTextNode(content), func);
     }

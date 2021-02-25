@@ -3,9 +3,8 @@ const api = use.api;
 const metrics = use.metrics;
 const router = use.router;
 
-router.add("/", (args) => {
-    return leaf()
-        .h1("Welcome")
+router.add("/", (args, page) => {
+    page.h1("Welcome")
         .p(
             leaf()
                 .t("Welcome to ")
@@ -14,12 +13,25 @@ router.add("/", (args) => {
                 .a("here", "{HOME}/metric/incidence")
                 .t(".")
         )
-        .ul(Array.from(metrics.entries()).map(([key, mtrc]) => leaf().a(mtrc.name, "{HOME}/metric/" + key)));
+        .ul(Array.from(metrics.entries()).map(([key, mtrc]) => leaf().a(mtrc.name, "{HOME}/metric/" + key)))
+        .p(
+            leaf()
+                .t("Or go to a ")
+                .a("random region", "{HOME}/region/DE", (a) => {
+                    api.then((api) => {
+                        let regions = api.find_region("");
+                        a.href = "{HOME}/region/" + regions[Math.floor(Math.random() * regions.length)].key;
+                    });
+                })
+                .t(".")
+        );
+
+    return true;
 });
 
-router.add("/metric/{}", (metric_name, args) => {
+router.add("/metric/{}", (metric_name, args, page) => {
     if (!metrics.has(metric_name)) {
-        return null;
+        return false;
     }
 
     let mtrc = metrics.get(metric_name);
@@ -35,8 +47,8 @@ router.add("/metric/{}", (metric_name, args) => {
             .sort((a, b) => b.val - a.val)
     );
 
-    return leaf()
-        .append(router(["metric", metric_name, "synopsis"], {}))
+    page.h1(mtrc.name)
+        .append(mtrc.synopsis())
         .p(
             leaf()
                 .a("Tell me more", "{HOME}/metric/" + metric_name + "/explanation")
@@ -92,22 +104,41 @@ router.add("/metric/{}", (metric_name, args) => {
                 }
             });
         });
+
+    return true;
 });
 
-router.add("metric/{}/synopsis", (metric_name, args) => {
+router.add("/metric/{}/synopsis", (metric_name, args, page) => {
     if (!metrics.has(metric_name)) {
-        return null;
+        return false;
     }
 
     let mtrc = metrics.get(metric_name);
-    return leaf().h1(mtrc.name).append(mtrc.synopsis());
+    page.h1(mtrc.name).append(mtrc.synopsis());
+
+    return true;
 });
 
-router.add("metric/{}/explanation", (metric_name, args) => {
+router.add("/metric/{}/explanation", (metric_name, args, page) => {
     if (!metrics.has(metric_name)) {
-        return null;
+        return false;
     }
 
     let mtrc = metrics.get(metric_name);
-    return router(["metric", metric_name, "synopsis"]).append(mtrc.explanation());
+    page.h1(mtrc.name).append(mtrc.synopsis()).append(mtrc.explanation());
+
+    return true;
+});
+
+router.add("/region/{}", (reg_key, args, page) => {
+    return api.then((api) => {
+        let reg = api.region(reg_key.toUpperCase());
+        if (!reg) {
+            return false;
+        }
+
+        page.h1(reg.name);
+
+        return true;
+    });
 });

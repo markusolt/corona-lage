@@ -42,26 +42,47 @@ const router = use.router;
             if (url.startsWith(origin)) {
                 let rel_url = url.substring(origin.length);
 
-                let path = split_at(rel_url, "?")[0]
-                    .split("/")
-                    .map((w) =>
-                        decodeURIComponent(w)
-                            .toLowerCase()
-                            .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, "")
-                    )
-                    .filter((w) => w.length > 0);
-                let query = Object.fromEntries(
-                    split_at(split_at(rel_url, "?")[1], "#")[0]
+                let {path, query, tag} = /^(?<path>[^\?#]*)(\?(?<query>[^#]*))?(#(?<tag>.*))?$/.exec(rel_url).groups;
+                path =
+                    "/" +
+                    path
+                        .split("/")
+                        .map((w) =>
+                            decodeURIComponent(w)
+                                .toLowerCase()
+                                .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, "")
+                        )
+                        .filter((w) => w.length > 0)
+                        .join("/");
+                query = Object.fromEntries(
+                    (query || "")
                         .split("&")
-                        .map((w) => split_at(w, "="))
-                        .map(([key, val]) => [
+                        .map((w) => /(?<key>[^\=]*)(\=(?<val>.*))?/.exec(w).groups)
+                        .map(({key, val}) => [
                             decodeURIComponent(key)
                                 .toLowerCase()
                                 .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, ""),
-                            decodeURIComponent(val).trim() || true,
+                            decodeURIComponent(val || "").trim() || true,
                         ])
                         .filter(([key, val]) => key.length > 0)
                 );
+                tag = decodeURIComponent(tag || "")
+                    .toLowerCase()
+                    .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, "");
+
+                // i wanted to clean up the browser url using 'history.replaceState', but for some
+                // reason this breaks the session history. i am leaving the expression here, but the
+                // variable is currently unused.
+                let recommended_url =
+                    "{HOME}" +
+                    path +
+                    (Object.keys(query).length > 0
+                        ? "?" +
+                          Object.entries(query)
+                              .map(([key, val]) => key + "=" + encodeURIComponent(val))
+                              .join("&")
+                        : "") +
+                    (tag ? "#" + tag : "");
 
                 return {
                     path,
@@ -71,14 +92,15 @@ const router = use.router;
 
             return null;
         },
-        (args) => {
+        (loc) => {
             api_update();
 
             page.textContent = "";
-            leaf(page).append(router(args.path, args.query));
-            if (page.childNodes.length === 0) {
-                leaf(page).h1("Status 404").p("There is nothing here, are you lost?").p(leaf().a("Go home", "{HOME}/").t("."));
-            }
+            leaf(page)
+                .append(document.createElement("article"), (article) => {
+                    router(loc.path, loc.query, leaf(article));
+                })
+                .p(leaf().a("home", "{HOME}/"));
         }
     );
 }

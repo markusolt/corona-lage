@@ -1,15 +1,15 @@
 {
     "modules": [
         "box",
-        "csv",
-        "day",
         "hay",
-        "lorem",
+        "csv",
         "leaf",
+        "router",
+        "lorem",
+        "day",
         "api",
         "metrics",
-        "router",
-        "routes",
+        "pages",
         "spa",
         "main"
     ]

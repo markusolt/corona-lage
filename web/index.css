@@ -27,12 +27,18 @@ body {
 }
 
 main {
-    margin: 3em 2em;
-    min-height: calc(100vh - 3em - 3em);
+    display: flex;
+    flex-direction: column;
+    margin: 2em 2em;
+    min-height: calc(100vh - 2em - 2em);
+}
+
+article {
+    flex-grow: 1;
 }
 
 footer {
-    margin: 3em 2em;
+    margin: 2em 2em;
 }
 
 h1, h2, h3, h4, h5, h6 {
