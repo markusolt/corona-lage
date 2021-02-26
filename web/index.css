@@ -97,3 +97,8 @@ img {
     outline: none;
     -webkit-appearance: none;
 }
+
+.num {
+    margin: 0em .4em;
+    white-space: nowrap;
+}

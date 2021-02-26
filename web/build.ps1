@@ -24,7 +24,7 @@ $modules | foreach {
 } | terser -mc --toplevel | set-content -literalpath "$target_dir/index.js";
 $js_hash = (get-filehash "$target_dir/index.js").hash.substring(0, 5);
 
-(get-content -raw "./index.css") -replace "\s+", " " | set-content "$target_dir/index.css";
+((get-content -raw "./index.css") -replace "\s+", " ").replace("{HOME}", $home_url) | set-content "$target_dir/index.css";
 $css_hash = (get-filehash "$target_dir/index.css").hash.substring(0, 5);
 
 (get-content -raw "./index.html").replace("{HOME}", $home_url).replace("{JS_HASH}", $js_hash).replace("{CSS_HASH}", $css_hash) | set-content -nonewline "$target_dir/index.html";

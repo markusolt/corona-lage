@@ -82,6 +82,29 @@ router.add("/region", (args, page) => {
     return true;
 });
 
+router.add("/region/{}", (reg_key, args, page) => {
+    return api.then((api) => {
+        let reg = api.region(reg_key.toUpperCase());
+        if (!reg) {
+            return false;
+        }
+
+        let deaths_total = api.samples({reg, day: 0})[0].measures.deaths_total;
+        page.h1(reg.name).p(
+            leaf()
+                .t(reg.name + " is a region with a population of ")
+                .append(fmt_int(reg.population))
+                .t(" people. So far, ")
+                .append(fmt_int(deaths_total))
+                .t(" have lost their lives in relation to ")
+                .i("Covid-19")
+                .t(". Many more had their lives permanently changed for the worse.")
+        );
+
+        return true;
+    });
+});
+
 router.add("/metric/{}", (metric_name, args, page) => {
     if (!metrics.has(metric_name)) {
         return false;
@@ -183,21 +206,15 @@ router.add("/metric/{}/explanation", (metric_name, args, page) => {
     return true;
 });
 
-router.add("/region/{}", (reg_key, args, page) => {
-    return api.then((api) => {
-        let reg = api.region(reg_key.toUpperCase());
-        if (!reg) {
-            return false;
-        }
-
-        page.h1(reg.name);
-
-        return true;
-    });
-});
-
 function link_reg(reg) {
     return leaf().a(reg.name, "{HOME}/region/" + reg.key);
+}
+
+function fmt_int(num) {
+    let ret = document.createElement("span");
+    ret.classList.add("num");
+    ret.textContent = num.toFixed(0).replace(/(\d)(?=(\d\d\d)+(\D|$))/g, "$1 ");
+    return ret;
 }
 
 function search_box(prompt, func, initial) {

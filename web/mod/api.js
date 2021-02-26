@@ -35,7 +35,7 @@ class Api {
             };
 
             regions.set(reg.key, reg);
-            regions_index.insert(reg.key + " " + reg.name + " " + reg.words, reg);
+            regions_index.insert(rec.key + " " + rec.name + " " + rec.words, reg);
         }
 
         let days = new Map();
@@ -58,9 +58,11 @@ class Api {
             let cases = Number(rec.cases);
             let cases_w_0 = Number(rec.cases_week_0);
             let cases_w_7 = Number(rec.cases_week_7);
+            let cases_total = Number(rec.cases_total);
             let deaths = Number(rec.deaths);
             let deaths_w_0 = Number(rec.deaths_week_0);
             let deaths_w_7 = Number(rec.deaths_week_7);
+            let deaths_total = Number(rec.deaths_total);
 
             samples.push({
                 reg,
@@ -69,9 +71,11 @@ class Api {
                     cases,
                     cases_w_0,
                     cases_w_7,
+                    cases_total,
                     deaths,
                     deaths_w_0,
                     deaths_w_7,
+                    deaths_total,
                 },
             });
         }

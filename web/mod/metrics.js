@@ -55,4 +55,14 @@ metrics.set("incidence-rki", {
     explanation: () => leaf(),
 });
 
+metrics.set("deaths", {
+    name: "Deaths",
+    eval: (sample) => {
+        return (sample.measures.deaths_total * 1000000) / sample.reg.population;
+    },
+    precision: 0,
+    synopsis: () => leaf().p(leaf().t("The number of deaths per 1.000.000 people.")),
+    explanation: () => leaf(),
+});
+
 return metrics;

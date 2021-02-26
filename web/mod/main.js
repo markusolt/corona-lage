@@ -133,9 +133,9 @@ todo:
 [x] create metric abstraction
 [x] rewrite router
 [x] auto reload the page on api update
-[ ] create specialized rendering abstractions
-    [ ] metric hyperlink
-    [ ] replace inline urls with js functions
+[x] create specialized rendering abstractions
+    [x] metric hyperlink
+    [x] replace inline urls with js functions
 [ ] create the following pages
     [x] /
     [ ] /metric #{mtrc}
@@ -149,6 +149,9 @@ todo:
     [ ] /region/{reg}/news/{date}
     [ ] /blog #art
     [ ] /blog/{art}
+[ ] refine metric abstraction
+[ ] rethink number formatting
+[ ] extend spa module to save state in history (replacestate)
 [ ] remove main module
 [ ] add variable definitions to config.json and refactor build.ps1
 [ ] add an optional arg "?day={date}"
