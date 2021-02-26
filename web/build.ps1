@@ -1,11 +1,11 @@
 push-location $psscriptroot;
 
-$target_dir = "./target/corona-lage";
+$target_dir = "../../web";
 $home_url = "/corona-lage";
 $config = convertfrom-json (get-content -raw "./config.json");
 
 $modules = $config.modules | foreach {
-    get-item -literalpath "mod/$_.js"
+    get-item -literalpath "js/$_.js"
 };
 
 $modules | foreach {
@@ -32,8 +32,5 @@ $html_hash = (get-filehash "$target_dir/index.html").hash.substring(0, 5);
 
 (get-content -raw "./manifest.webmanifest").replace("{HOME}", $home_url) | set-content -nonewline "$target_dir/manifest.webmanifest";
 (get-content -raw "./404.html").replace("{HOME}", $home_url).replace("{HTML_HASH}", $html_hash) | set-content -nonewline "$target_dir/404.html";
-
-# todo: for dev environment only:
-(get-content -raw "./404.html").replace("{HOME}", $home_url).replace("{HTML_HASH}", $html_hash) | set-content -nonewline "$target_dir/../404.html";
 
 pop-location;
