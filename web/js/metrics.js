@@ -12,6 +12,16 @@ metrics.set("cases", {
     explanation: () => leaf(),
 });
 
+metrics.set("deaths", {
+    name: "Deaths",
+    eval: (sample) => {
+        return sample.measures.deaths;
+    },
+    precision: 0,
+    synopsis: () => leaf(),
+    explanation: () => leaf(),
+});
+
 metrics.set("reproduction", {
     name: "Rate of Reproduction",
     eval: (sample) => {
@@ -55,7 +65,7 @@ metrics.set("incidence-rki", {
     explanation: () => leaf(),
 });
 
-metrics.set("deaths", {
+metrics.set("deaths_total", {
     name: "Deaths",
     eval: (sample) => {
         return (sample.measures.deaths_total * 1000000) / sample.reg.population;

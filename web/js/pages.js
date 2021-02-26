@@ -89,6 +89,13 @@ router.add("/region/{}", (reg_key, args, page) => {
             return false;
         }
 
+        let selected_metrics = [
+            metrics.get("cases"),
+            metrics.get("deaths"),
+            metrics.get("reproduction"),
+            metrics.get("incidence"),
+            metrics.get("incidence-rki"),
+        ];
         let deaths_total = api.samples({reg, day: 0})[0].measures.deaths_total;
         page.h1(reg.name)
             .p(
@@ -106,7 +113,7 @@ router.add("/region/{}", (reg_key, args, page) => {
                     {name: "Date", field: "date"},
                     {name: "day", field: "week_day"},
                 ].concat(
-                    Array.from(metrics.entries()).map(([key, mtrc], i) => {
+                    selected_metrics.map((mtrc, i) => {
                         return {name: mtrc.name, field: i, numeric: true, precision: mtrc.precision};
                     })
                 ),
@@ -118,7 +125,7 @@ router.add("/region/{}", (reg_key, args, page) => {
                             [
                                 ["date", sample.day.iso],
                                 ["week_day", sample.day.week_day],
-                            ].concat(Array.from(metrics.entries()).map(([key, mtrc], i) => [i, mtrc.eval(sample)]))
+                            ].concat(selected_metrics.map((mtrc, i) => [i, mtrc.eval(sample)]))
                         )
                     )
             );
