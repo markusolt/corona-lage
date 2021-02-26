@@ -89,10 +89,11 @@ img {
 }
 
 .search {
-    padding: 10px 20px;
+    padding: .7em;
     width: 100%;
-    border: none;
+    border: 1px solid black;
     border-radius: 0px;
+    background-color: white;
     outline: none;
     -webkit-appearance: none;
 }
