@@ -72,7 +72,10 @@ class Leaf {
         let node = document.createElement("div");
         node.classList.add("wide");
 
-        let t = node.appendChild(document.createElement("table"));
+        let inner = node.appendChild(document.createElement("div"));
+        inner.classList.add("padded");
+
+        let t = inner.appendChild(document.createElement("table"));
         let head = t.createTHead().insertRow();
         let body = t.createTBody();
 

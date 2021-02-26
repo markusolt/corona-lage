@@ -84,7 +84,6 @@ img {
 
 
 table {
-    margin: 0em auto;
     border-spacing: 0em;
     border-collapse: collapse;
 }
@@ -106,8 +105,15 @@ td.num {
 }
 
 .wide {
-    width: 100%;
+    margin: 0em -2em;
+    width: calc(100% + 2em + 2em);
     overflow-x: auto;
+}
+
+.padded {
+    margin: 0em auto;
+    padding: 0em 2em;
+    width: fit-content;
 }
 
 .signature {
@@ -119,7 +125,8 @@ td.num {
 .search {
     padding: .7em;
     width: 100%;
-    border: 1px solid black;
+    color: black;
+    border: 1px solid;
     border-radius: 0px;
     background-color: white;
     outline: none;
