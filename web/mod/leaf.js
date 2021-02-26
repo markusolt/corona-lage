@@ -1,3 +1,5 @@
+const box = use.box;
+
 class Leaf {
     constructor(node) {
         this._node = node;
@@ -58,6 +60,46 @@ class Leaf {
         for (let entry of iter) {
             node.appendChild(append(document.createElement("li"), entry));
         }
+
+        return this.append(node, func);
+    }
+
+    pre(content, func) {
+        return this.append(append(document.createElement("pre"), content), func);
+    }
+
+    table(columns, data, func) {
+        let node = document.createElement("div");
+        node.classList.add("wide");
+
+        let t = node.appendChild(document.createElement("table"));
+        let head = t.createTHead().insertRow();
+        let body = t.createTBody();
+
+        for (let col of columns) {
+            let th = head.appendChild(document.createElement("th"));
+            th.textContent = col.name;
+            th.classList.toggle("num", col.numeric);
+        }
+
+        box.thenable(data).then((data) => {
+            for (let rec of data) {
+                let tr = body.insertRow();
+
+                for (let col of columns) {
+                    let td = tr.insertCell();
+                    let val = rec[col.field];
+                    if (col.numeric) {
+                        td.classList.add("num");
+                        td.classList.toggle("empty", !Number.isFinite(val) || val.toFixed(col.precision) === "0");
+                        td.textContent = Number.isFinite(val) ? val.toFixed(col.precision) : "-";
+                    } else {
+                        td.classList.toggle("empty", !val);
+                        td.textContent = val ? val : "-";
+                    }
+                }
+            }
+        });
 
         return this.append(node, func);
     }

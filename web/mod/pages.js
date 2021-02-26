@@ -90,16 +90,38 @@ router.add("/region/{}", (reg_key, args, page) => {
         }
 
         let deaths_total = api.samples({reg, day: 0})[0].measures.deaths_total;
-        page.h1(reg.name).p(
-            leaf()
-                .t(reg.name + " is a region with a population of ")
-                .append(fmt_int(reg.population))
-                .t(" people. So far, ")
-                .append(fmt_int(deaths_total))
-                .t(" have lost their lives in relation to ")
-                .i("Covid-19")
-                .t(". Many more had their lives permanently changed for the worse.")
-        );
+        page.h1(reg.name)
+            .p(
+                leaf()
+                    .t(reg.name + " is a region with a population of ")
+                    .append(fmt_int(reg.population))
+                    .t(" people. So far, ")
+                    .append(fmt_int(deaths_total))
+                    .t(" have lost their lives in relation to ")
+                    .i("Covid-19")
+                    .t(". Many more had their lives permanently changed for the worse.")
+            )
+            .table(
+                [
+                    {name: "Date", field: "date"},
+                    {name: "day", field: "week_day"},
+                ].concat(
+                    Array.from(metrics.entries()).map(([key, mtrc], i) => {
+                        return {name: mtrc.name, field: i, numeric: true, precision: mtrc.precision};
+                    })
+                ),
+                api
+                    .samples({reg})
+                    .sort((a, b) => a.day.rel - b.day.rel)
+                    .map((sample) =>
+                        Object.fromEntries(
+                            [
+                                ["date", sample.day.iso],
+                                ["week_day", sample.day.week_day],
+                            ].concat(Array.from(metrics.entries()).map(([key, mtrc], i) => [i, mtrc.eval(sample)]))
+                        )
+                    )
+            );
 
         return true;
     });
