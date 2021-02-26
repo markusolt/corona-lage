@@ -1,0 +1,16 @@
+{
+    "modules": [
+        "box",
+        "hay",
+        "csv",
+        "leaf",
+        "router",
+        "lorem",
+        "day",
+        "api",
+        "metrics",
+        "pages",
+        "spa",
+        "main"
+    ]
+}
