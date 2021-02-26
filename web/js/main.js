@@ -142,19 +142,27 @@ todo:
     [x] /metric/{mtrc}
     [x] /metric/{mtrc}/synopsis
     [x] /metric/{mtrc}/explanation
-    [ ] /region ?filter={}
-    [ ] /region/{reg} #{mtrc}
-    [ ] /region/{reg}/synopsis
+    [x] /region ?filter={}
+    [x] /region/{reg}
     [ ] /region/{reg}/news #{date}
     [ ] /region/{reg}/news/{date}
     [ ] /blog #art
     [ ] /blog/{art}
 [ ] refine metric abstraction
+[ ] make it easier to link to things, and add links everywhere
+    [ ] use the '.subtle' links where appropriate
+    [ ] link to the metrics in the region details table
+[ ] create pages for values in different units?
+    [ ] people
+    [ ] days / hours
 [ ] rethink number formatting
+    [ ] include constants, such as '4 days' or '100.000 people'.
 [ ] extend spa module to save state in history (replacestate)
+    [ ] needed by region search page
+    [ ] deal with safari rate limiting
 [ ] remove main module
 [ ] add variable definitions to config.json and refactor build.ps1
-[ ] add an optional arg "?day={date}"
+[ ] add an optional arg "?day={date}"?
     [ ] show a warning
     [ ] persist this value across navigation
 [ ] offline support
