@@ -114,7 +114,7 @@ class Api {
         return state.regions.get(key);
     }
 
-    find_region(query) {
+    find_regions(query) {
         return state.regions_index.find(query);
     }
 

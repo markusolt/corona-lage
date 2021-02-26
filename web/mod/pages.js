@@ -9,9 +9,9 @@ router.add("/", (args, page) => {
             leaf()
                 .t("Welcome to ")
                 .i("Corona Lage")
-                .t(". This is your daily update of Covid-19 incidence values across Germany. Go ahead and start ")
-                .a("here", "{HOME}/metric/incidence")
-                .t(".")
+                .t(". This is your daily update of Covid-19 incidence values across Germany. Go ahead and select a ")
+                .a("region", "{HOME}/region/")
+                .t(" here.")
         )
         .ul(Array.from(metrics.entries()).map(([key, mtrc]) => leaf().a(mtrc.name, "{HOME}/metric/" + key)))
         .p(
@@ -19,12 +19,65 @@ router.add("/", (args, page) => {
                 .t("Or go to a ")
                 .a("random region", "{HOME}/region/DE", (a) => {
                     api.then((api) => {
-                        let regions = api.find_region("");
+                        let regions = api.find_regions("");
                         a.href = "{HOME}/region/" + regions[Math.floor(Math.random() * regions.length)].key;
                     });
                 })
                 .t(".")
         );
+
+    return true;
+});
+
+router.add("/region", (args, page) => {
+    let init_search = args.filter || "";
+
+    let ul = document.createElement("ul");
+    let items = api.then((api) => {
+        let ret = [];
+        for (let reg of api.find_regions("").sort((a, b) => b.population - a.population)) {
+            let li = document.createElement("li");
+            li.style.display = "none";
+            leaf(li).append(link_reg(reg));
+
+            ul.appendChild(li);
+            ret.push({reg, li});
+        }
+
+        return ret;
+    });
+
+    page.h1("Regions")
+        .append(
+            search_box(
+                "filter",
+                (query) => {
+                    // safari is known to block replaceState when called too frequently
+                    // in this case we simply stop updating the url.
+                    try {
+                        // todo: try to merge better with current url
+                        history.replaceState(null, "", "?filter=" + encodeURIComponent(query));
+                    } catch {}
+
+                    api.then((api) => {
+                        items.then((items) => {
+                            let count = 0;
+                            let res = new Set(api.find_regions(query));
+                            for (let {reg, li} of items) {
+                                if (count < 25 && res.has(reg)) {
+                                    count += 1;
+                                    li.style.display = null;
+                                } else {
+                                    li.style.display = "none";
+                                }
+                            }
+                        });
+                    });
+                },
+                init_search
+            )
+        )
+        .append(ul);
 
     return true;
 });
@@ -142,3 +195,50 @@ router.add("/region/{}", (reg_key, args, page) => {
         return true;
     });
 });
+
+function link_reg(reg) {
+    return leaf().a(reg.name, "{HOME}/region/" + reg.key);
+}
+
+function search_box(prompt, func, initial) {
+    let running = false;
+    let pending = null;
+
+    async function exec(query) {
+        pending = query;
+
+        if (!running) {
+            running = true;
+            while (pending !== null) {
+                let up_next = pending;
+                pending = null;
+
+                await func(up_next);
+                await new Promise((res) => setTimeout(res, 100));
+            }
+            running = false;
+        }
+    }
+    exec(initial || "");
+
+    let ret = document.createElement("input");
+    ret.type = "search";
+    ret.classList.add("search");
+    ret.placeholder = prompt;
+    ret.spellcheck = false;
+    ret.enterKeyHint = "search";
+    ret.value = initial || "";
+    ret.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+            ret.value = "";
+            exec("");
+
+            event.preventDefault();
+        }
+    });
+    ret.addEventListener("input", (event) => {
+        exec(event.target.value);
+    });
+
+    return ret;
+}

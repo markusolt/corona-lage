@@ -62,7 +62,7 @@ const router = use.router;
                             decodeURIComponent(key)
                                 .toLowerCase()
                                 .replace(/^[^a-z]+|[^a-z0-9_\-]+|[^a-z0-9]+$/g, ""),
-                            decodeURIComponent(val || "").trim() || true,
+                            decodeURIComponent(val || "").trim(),
                         ])
                         .filter(([key, val]) => key.length > 0)
                 );
