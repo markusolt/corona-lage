@@ -1,7 +1,7 @@
 {
     "name": "Corona Lage",
     "short_name": "Corona Lage",
-    "start_url": "./?/",
+    "start_url": "/corona-lage/",
     "display": "standalone",
     "icons": [
         {
