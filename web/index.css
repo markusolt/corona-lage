@@ -5,7 +5,7 @@
 }
 
 html {
-    overflow: auto hidden;
+    overflow: hidden auto;
 }
 
 body {
@@ -16,7 +16,6 @@ body {
     line-height: 1.4;
     margin: 0em auto;
     max-width: 50em;
-    overflow: hidden;
 }
 
 @media (prefers-color-scheme: dark) {
