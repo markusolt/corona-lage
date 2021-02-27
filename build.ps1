@@ -1,5 +1,4 @@
 $cache = "./cache";
-$docs = "./docs";
 $sql = "./sql";
 $target_dir = "../web";
 $dirty = $false;
@@ -181,5 +180,3 @@ if ($dirty) {
 if ($dirty) {
     get-date -asutc -format "o" | set-content -path "$target_dir/api/updated";
 }
-
-copy-item -path "docs/*" -destination "../web/" -recurse -force
