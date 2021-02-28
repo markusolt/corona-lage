@@ -1,30 +1,45 @@
+const spa = use.spa;
 const leaf = use.leaf;
 const api = use.api;
 const metrics = use.metrics;
 const router = use.router;
 
 router.add("/", (args, page) => {
-    page.h1("Welcome")
+    page.h1("Corona-Lage")
+        .p(leaf().t("Welcome to ").i("Corona Lage").t(". This is your daily update of Covid-19 incidence values across Germany."))
         .p(
             leaf()
-                .t("Welcome to ")
-                .i("Corona Lage")
-                .t(". This is your daily update of Covid-19 incidence values across Germany. Go ahead and select a ")
-                .a("region", "{HOME}/region/")
-                .t(" here.")
+                .t("You can either select a ")
+                .a("region", "{HOME}/region")
+                .t(" to see local statistics for the past ")
+                .i("28 days")
+                .t(", or you can select a ")
+                .a("metric", "{HOME}/metric")
+                .t(" to see a ranked list of regions.")
         )
-        .ul(metrics.all().map((mtrc) => mtrc.link()))
+        .append(
+            search_box("Search for City", () => {}),
+            (input) => {
+                input.addEventListener("focus", () => {
+                    history.pushState(null, "", "{HOME}/region");
+                    spa.refresh();
+                });
+            }
+        )
+        .h2("Experiments")
         .p(
-            leaf()
-                .t("Or go to a ")
-                .a("random region", "{HOME}/region/DE", (a) => {
-                    api.then((api) => {
-                        let regions = api.find_regions("");
-                        a.href = "{HOME}/region/" + regions[Math.floor(Math.random() * regions.length)].key;
-                    });
-                })
-                .t(".")
-        );
+            leaf().t(
+                "These are links to experimental pages for my eyes only. You may visit these pages, but they might not make sense to you."
+            )
+        )
+        .ul([
+            leaf().a("random region", "{HOME}/region/DE", (a) => {
+                api.then((api) => {
+                    let regions = api.find_regions("");
+                    a.href = "{HOME}/region/" + regions[Math.floor(Math.random() * regions.length)].key;
+                });
+            }),
+        ]);
 
     return true;
 });
@@ -50,7 +65,7 @@ router.add("/region", (args, page) => {
     page.h1("Regions")
         .append(
             search_box(
-                "filter",
+                "Search for City",
                 (query) => {
                     // safari is known to block replaceState when called too frequently
                     // in this case we simply stop updating the url.
@@ -75,7 +90,10 @@ router.add("/region", (args, page) => {
                     });
                 },
                 init_search
-            )
+            ),
+            (input) => {
+                input.autofocus = true;
+            }
         )
         .append(ul);
 

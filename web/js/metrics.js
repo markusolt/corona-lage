@@ -64,7 +64,9 @@ metrics.add(
             leaf().p(
                 leaf()
                     .t("The factor by which the number of ")
-                    .a("new cases", "{HOME}/metric/cases")
+                    .a("new cases", "{HOME}/metric/cases", (a) => {
+                        a.classList.add("subtle");
+                    })
                     .t(" is multiplied by every ")
                     .i("four days")
                     .t(".")
@@ -92,7 +94,14 @@ metrics.add(
     {
         name: "Incidence (RKI)",
         synopsis: () =>
-            leaf().p(leaf().t("The average ").a("number of cases", "{HOME}/metric/cases").t(" for the past 7 days per 100.000 people.")),
+            leaf().p(
+                leaf()
+                    .t("The average ")
+                    .a("number of cases", "{HOME}/metric/cases", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(" for the past 7 days per 100.000 people.")
+            ),
     }
 );
 
