@@ -76,11 +76,15 @@ router.add("/region", (args, page) => {
 
                     api.then((api) => {
                         items.then((items) => {
-                            let count = 0;
-                            let res = new Set(api.find_regions(query));
+                            let res =
+                                query.trim() === ""
+                                    ? api.find_regions("").filter((reg) => reg.key.length < 5)
+                                    : api.find_regions(query).filter((reg) => reg.key.length > 4);
+                            let white_list = new Set(res);
+                            let limit = 25;
                             for (let {reg, li} of items) {
-                                if (count < 25 && res.has(reg)) {
-                                    count += 1;
+                                if (limit > 0 && white_list.has(reg)) {
+                                    limit -= 1;
                                     li.style.display = null;
                                 } else {
                                     li.style.display = "none";
