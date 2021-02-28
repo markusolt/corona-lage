@@ -13,7 +13,7 @@ router.add("/", (args, page) => {
                 .a("region", "{HOME}/region/")
                 .t(" here.")
         )
-        .ul(Array.from(metrics.entries()).map(([key, mtrc]) => leaf().a(mtrc.name, "{HOME}/metric/" + key)))
+        .ul(metrics.all().map((mtrc) => mtrc.link()))
         .p(
             leaf()
                 .t("Or go to a ")
@@ -89,13 +89,7 @@ router.add("/region/{}", (reg_key, args, page) => {
             return false;
         }
 
-        let selected_metrics = [
-            metrics.get("cases"),
-            metrics.get("deaths"),
-            metrics.get("reproduction"),
-            metrics.get("incidence"),
-            metrics.get("incidence-rki"),
-        ];
+        let selected_metrics = ["cases", "deaths", "reproduction", "incidence", "incidence-rki"].map((id) => metrics.get(id));
         let deaths_total = api.samples({reg, day: 0})[0].measures.deaths_total;
         page.h1(reg.name)
             .p(
@@ -114,7 +108,7 @@ router.add("/region/{}", (reg_key, args, page) => {
                     {name: "day", field: "week_day"},
                 ].concat(
                     selected_metrics.map((mtrc, i) => {
-                        return {name: mtrc.name, field: i, numeric: true, precision: mtrc.precision};
+                        return {name: mtrc.link(), field: i, numeric: true, precision: mtrc.precision};
                     })
                 ),
                 api
@@ -135,11 +129,11 @@ router.add("/region/{}", (reg_key, args, page) => {
 });
 
 router.add("/metric/{}", (metric_name, args, page) => {
-    if (!metrics.has(metric_name)) {
+    let mtrc = metrics.get(metric_name);
+    if (!mtrc) {
         return false;
     }
 
-    let mtrc = metrics.get(metric_name);
     let data = api.then((api) =>
         api
             .samples({day: 0})
@@ -213,23 +207,12 @@ router.add("/metric/{}", (metric_name, args, page) => {
     return true;
 });
 
-router.add("/metric/{}/synopsis", (metric_name, args, page) => {
-    if (!metrics.has(metric_name)) {
-        return false;
-    }
-
-    let mtrc = metrics.get(metric_name);
-    page.h1(mtrc.name).append(mtrc.synopsis());
-
-    return true;
-});
-
 router.add("/metric/{}/explanation", (metric_name, args, page) => {
-    if (!metrics.has(metric_name)) {
+    let mtrc = metrics.get(metric_name);
+    if (!mtrc) {
         return false;
     }
 
-    let mtrc = metrics.get(metric_name);
     page.h1(mtrc.name).append(mtrc.synopsis()).append(mtrc.explanation());
 
     return true;

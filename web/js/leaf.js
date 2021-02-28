@@ -81,7 +81,7 @@ class Leaf {
 
         for (let col of columns) {
             let th = head.appendChild(document.createElement("th"));
-            th.textContent = col.name;
+            leaf(th).append(col.name);
             th.classList.toggle("num", col.numeric);
         }
 
