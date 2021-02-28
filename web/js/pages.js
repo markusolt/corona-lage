@@ -128,6 +128,12 @@ router.add("/region/{}", (reg_key, args, page) => {
     });
 });
 
+router.add("/metric", (args, page) => {
+    page.h1("Metrics").ul(metrics.all().map((mtrc) => mtrc.link().append(mtrc.synopsis())));
+
+    return true;
+});
+
 router.add("/metric/{}", (metric_name, args, page) => {
     let mtrc = metrics.get(metric_name);
     if (!mtrc) {
