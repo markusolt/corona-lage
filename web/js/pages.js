@@ -134,69 +134,34 @@ router.add("/metric/{}", (metric_name, args, page) => {
         return false;
     }
 
-    let data = api.then((api) =>
-        api
-            .samples({day: 0})
-            .map((sample) => {
-                return {
-                    reg: sample.reg,
-                    val: mtrc.eval(sample),
-                };
-            })
-            .sort((a, b) => b.val - a.val)
-    );
-
     page.h1(mtrc.name)
         .append(mtrc.synopsis())
         .p(
             leaf()
-                .a("Tell me more", "{HOME}/metric/" + metric_name + "/explanation")
+                .a("Tell me more", "{HOME}/metric/" + mtrc.id + "/explanation")
                 .t(".")
         )
-        .append(document.createElement("div"), (node) => {
-            data.then((table) => {
-                let rec = table.find((rec) => rec.reg.key.length === 2);
-                leaf(node)
-                    .t(rec.reg.name + ": ")
-                    .b(rec.val.toFixed(mtrc.precision));
-            });
-        })
-        .h3("Bundeslander")
+        .h3("Regions")
         .ul([], (node) => {
-            data.then((table) => {
-                for (let rec of table) {
-                    if (rec.reg.key.length === 4) {
-                        let li = document.createElement("li");
-                        leaf(li)
-                            .t(rec.reg.name + ": ")
-                            .b(rec.val.toFixed(mtrc.precision));
+            api.then((api) => {
+                let data = api
+                    .samples({day: 0})
+                    .filter((sample) => sample.reg.key.length < 5)
+                    .map((sample) => {
+                        return {
+                            reg: sample.reg,
+                            val: mtrc.eval(sample),
+                        };
+                    })
+                    .sort((a, b) => b.val - a.val);
 
-                        node.appendChild(li);
-                    }
-                }
-            });
-        })
-        .h3("Cities")
-        .ul([], (node) => {
-            data.then((table) => {
-                table = table.filter((rec) => rec.reg.key.length === 7);
-                for (let rec of table.slice(0, 10)) {
+                for (let rec of data) {
                     let li = document.createElement("li");
                     leaf(li)
-                        .t(rec.reg.name + ": ")
-                        .b(rec.val.toFixed(mtrc.precision));
-
-                    node.appendChild(li);
-                }
-
-                let li = document.createElement("li");
-                li.textContent = "...";
-                node.appendChild(li);
-
-                for (let rec of table.slice(table.length - 10)) {
-                    let li = document.createElement("li");
-                    leaf(li)
-                        .t(rec.reg.name + ": ")
+                        .a(rec.reg.name, "{HOME}/region/" + rec.reg.key, (a) => {
+                            a.classList.add("subtle");
+                        })
+                        .t(": ")
                         .b(rec.val.toFixed(mtrc.precision));
 
                     node.appendChild(li);

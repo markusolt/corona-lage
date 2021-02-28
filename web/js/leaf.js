@@ -64,6 +64,16 @@ class Leaf {
         return this.append(node, func);
     }
 
+    ol(content, func) {
+        let node = document.createElement("ol");
+        let iter = content && content[Symbol.iterator] ? content : [content];
+        for (let entry of iter) {
+            node.appendChild(append(document.createElement("li"), entry));
+        }
+
+        return this.append(node, func);
+    }
+
     pre(content, func) {
         return this.append(append(document.createElement("pre"), content), func);
     }
