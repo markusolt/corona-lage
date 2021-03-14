@@ -120,6 +120,7 @@ if (-not (file_exists -path "$target_dir/api/cases/cases.csv")) {
     log "processing" $date_first 1 $true;
     (get-content -path "sql/cases_init.sql" -raw).replace("{date}", $date_first) | sqlite3 | write-error;
 
+    $date_last = $date;
     $i = (get-date -date $date_first).addhours(12);
     $target = get-date -date $date_last;
     while ($i -lt $target) {

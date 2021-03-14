@@ -14,8 +14,8 @@ from (
     select
         'DE' || IdLandkreis as 'region',
         date(substr(replace(Meldedatum, '/', '-'), 1, 10)) as 'rep_date',
-        sum(AnzahlFall) as 'cases',
-        sum(AnzahlTodesfall) as 'deaths'
+        sum(AnzahlFall * case when NeuerFall > -1 then 1 else 0 end) as 'cases',
+        sum(AnzahlTodesfall * case when NeuerTodesfall > -1 then 1 else 0 end) as 'deaths'
     from rki_csv
     group by Meldedatum, IdLandkreis
 )
