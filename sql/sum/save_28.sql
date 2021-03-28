@@ -1,4 +1,4 @@
-.once '../web/api/cases/sum.csv'
+.once '../web/api/cases/sum_28.csv'
 select
     region,
     date,
@@ -17,6 +17,5 @@ select
     deaths_week_7,
     deaths_total
 from cases_sum
+where date > date('{date}', '-28 day')
 order by region asc, date desc;
-
-.q

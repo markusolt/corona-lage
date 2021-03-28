@@ -1,3 +1,5 @@
+.print '    inserting "{date}"'
+
 insert into cases_sum
 select
     r.key,

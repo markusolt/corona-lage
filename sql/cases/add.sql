@@ -1,18 +1,4 @@
-.mode csv
-.separator ,
-.header on
-.bail on
-
-.import '../web/api/cases/cases.csv' cases_csv
-create table cases as
-select
-    region,
-    date,
-    rep_date,
-    cases,
-    deaths
-from cases_csv
-where date < date('{date}');
+.print '    inserting "{date}"'
 
 .import 'cache/rki/{date}.csv' rki_csv
 create table rki as
@@ -53,12 +39,5 @@ from (
 )
 where (cases <> 0 or deaths <> 0);
 
-.once '../web/api/cases/cases.csv'
-select
-    region,
-    date,
-    rep_date,
-    cases,
-    deaths
-from cases
-order by region, date desc, rep_date desc;
+drop table rki_csv;
+drop table rki;

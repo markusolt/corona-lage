@@ -1,10 +1,4 @@
-.mode csv
-.separator ,
-.header on
-.bail on
-
-.import '../web/api/cases/sum.csv' cases_sum_csv
-.once '../web/api/cases/sum_28.csv'
+.once '../web/api/cases/sum.csv'
 select
     region,
     date,
@@ -22,6 +16,5 @@ select
     deaths_week_0,
     deaths_week_7,
     deaths_total
-from cases_sum_csv
-where date > date('{date}', '-28 day')
+from cases_sum
 order by region asc, date desc;

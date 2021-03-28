@@ -3,9 +3,9 @@
 .header on
 .bail on
 
-.import '../web/api/cases/sum.csv' cases_sum_csv
-create table cases_sum as
-select
+.print '    creating "sum.csv"'
+
+create table cases_sum (
     region,
     date,
     cases,
@@ -22,8 +22,7 @@ select
     deaths_week_0,
     deaths_week_7,
     deaths_total
-from cases_sum_csv
-where date < date('{date}');
+);
 
 .import '../web/api/regions/regions.csv' regions_csv
 create table regions as
@@ -43,3 +42,6 @@ from regions as 'r'
 inner join cases_csv as 'c'
     on substr(c.region, 1, length(r.key)) = r.key
 group by r.key, c.date, c.rep_date;
+
+drop table regions_csv;
+drop table cases_csv;

@@ -3,6 +3,8 @@
 .header on
 .bail on
 
+.print '    creating "regions-with-related-words.csv"'
+
 .import 'cache/rki_landkreise.csv' rki_landkreise_csv
 create table regions as
 select
@@ -50,5 +52,3 @@ left outer join postal_codes as 'post'
     on reg.key = post.key
 group by reg.key
 order by reg.key;
-
-.q

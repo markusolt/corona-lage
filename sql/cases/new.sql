@@ -3,6 +3,8 @@
 .header on
 .bail on
 
+.print '    creating "cases.csv"'
+
 .import 'cache/rki/{date}.csv' rki_csv
 create table rki as
 select
@@ -22,7 +24,7 @@ from (
 where rep_date < date('{date}')
 and cases <> 0 or deaths <> 0;
 
-.once '../web/api/cases/cases.csv'
+create table cases as
 select
     region,
     date(rep_date, '1 day') as date,
@@ -31,3 +33,6 @@ select
     deaths
 from rki
 order by region, date desc, rep_date desc;
+
+drop table rki_csv;
+drop table rki;
