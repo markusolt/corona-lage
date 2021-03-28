@@ -131,6 +131,42 @@ metrics.add(
 );
 
 metrics.add(
+    "deaths_incidence",
+    (sample) => {
+        let r = Math.pow(Math.max(0, sample.measures.deaths_w_0) / Math.max(1, sample.measures.deaths_w_7), 1 / 7);
+        let exp_base =
+            Math.max(1, sample.measures.deaths_w_7) /
+            (Math.pow(r, 0) + Math.pow(r, 1) + Math.pow(r, 2) + Math.pow(r, 3) + Math.pow(r, 4) + Math.pow(r, 5) + Math.pow(r, 6));
+        return (exp_base * Math.pow(r, 13) * 100 * 700000) / sample.reg.population;
+    },
+    {
+        name: "Incidence of Deaths",
+        precision: 0,
+        synopsis: () =>
+            leaf().p(
+                leaf()
+                    .t("The number of ")
+                    .a("new deaths", "{HOME}/metric/new_deaths", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(" per ")
+                    .i("70.000.000")
+                    .t(" (")
+                    .i("100 * 700.000")
+                    .t(") people. Similar to the ")
+                    .a("incidence of cases", "{HOME}/metric/incidence", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(", but based on the number of ")
+                    .a("new deaths", "{HOME}/metric/new_deaths", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(".")
+            ),
+    }
+);
+
+metrics.add(
     "deaths_total",
     (sample) => {
         return (sample.measures.deaths_total * 1000000) / sample.reg.population;
