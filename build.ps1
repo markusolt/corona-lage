@@ -74,7 +74,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
     write-host -message "`"./api/cases/cases.csv`":";
 
     # todo: automatically determine first date based on contents of "./cache/rki/"
-    $date_first = "2020-10-23";
+    $date_first = "2020-10-31";
     $sql = "";
 
     if (test-path -literalpath "$target_dir/api/cases/cases.csv" -pathtype leaf) {
@@ -105,7 +105,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
 if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/sum.csv" -pathtype leaf))) {
     write-host -message "`"./api/cases/sum.csv`":";
 
-    $date_first = "2020-10-23";
+    $date_first = "2020-10-31";
     $sql = "";
 
     if (test-path -literalpath "$target_dir/api/cases/sum.csv" -pathtype leaf) {
@@ -124,7 +124,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/sum.csv"
             $i = $i.adddays(1);
             $sql += $sql_step.replace("{date}", (get-date -date $i -asutc -format "o").substring(0, 10));
         }
-        $sql += (get-content -raw -path "./sql/sum/save_28.sql").replace("{date}", $date);
+        $sql += (get-content -raw -path "./sql/sum/save_21.sql").replace("{date}", $date);
         $sql += get-content -raw -path "./sql/sum/save.sql";
     }
 

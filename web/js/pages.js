@@ -12,7 +12,7 @@ router.add("/", (args, page) => {
                 .t("You can either select a ")
                 .a("region", "{HOME}/region")
                 .t(" to see local statistics for the past ")
-                .i("28 days")
+                .i("21 days")
                 .t(", or you can select a ")
                 .a("metric", "{HOME}/metric")
                 .t(" to see a ranked list of regions.")
