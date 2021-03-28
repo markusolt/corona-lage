@@ -37,38 +37,62 @@ let metrics = (() => {
 })();
 
 metrics.add(
-    "cases",
+    "new_cases",
     (sample) => {
         return sample.measures.cases;
     },
-    {}
+    {
+        name: "New Cases",
+        precision: 0,
+        synopsis: () =>
+            leaf().p(
+                leaf()
+                    .t("The number of new ")
+                    .i("Covid-19")
+                    .t(" cases published by the ")
+                    .i("RKI")
+                    .t(" on this day with a reporting date that is no older than ")
+                    .i("five days")
+                    .t(".")
+            ),
+    }
 );
 
 metrics.add(
-    "deaths",
+    "new_deaths",
     (sample) => {
         return sample.measures.deaths;
     },
-    {}
+    {
+        name: "New Deaths",
+        precision: 0,
+        synopsis: () => leaf().p(leaf().t("New number of new deaths related to ").i("Covid-19").t(" published by the ").i("RKI").t(".")),
+    }
 );
 
 metrics.add(
-    "reproduction",
+    "r",
     (sample) => {
-        return Math.pow(sample.measures.cases_w_0 / sample.measures.cases_w_7, 4 / 7);
+        return Math.pow(Math.max(0, sample.measures.cases_w_0) / Math.max(1, sample.measures.cases_w_7), 5 / 7);
     },
     {
-        name: "Rate of Reproduction",
-        precision: 3,
+        name: "Rate of Reproduction (5 days)",
+        precision: 2,
         synopsis: () =>
             leaf().p(
                 leaf()
                     .t("The factor by which the number of ")
-                    .a("new cases", "{HOME}/metric/cases", (a) => {
+                    .a("new cases", "{HOME}/metric/new_cases", (a) => {
                         a.classList.add("subtle");
                     })
                     .t(" is multiplied by every ")
-                    .i("four days")
+                    .i("five days")
+                    .t(". You can expect the ")
+                    .a("incidence", "{HOME}/metric/incidence", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(" to multiply by this factor every ")
+                    .i("five days")
                     .t(".")
             ),
     }
@@ -77,30 +101,31 @@ metrics.add(
 metrics.add(
     "incidence",
     (sample) => {
-        let r = Math.pow(sample.measures.cases_w_0 / sample.measures.cases_w_7, 1 / 7);
+        let r = Math.pow(Math.max(0, sample.measures.cases_w_0) / Math.max(1, sample.measures.cases_w_7), 1 / 7);
         let exp_base =
-            sample.measures.cases_w_7 /
+            Math.max(1, sample.measures.cases_w_7) /
             (Math.pow(r, 0) + Math.pow(r, 1) + Math.pow(r, 2) + Math.pow(r, 3) + Math.pow(r, 4) + Math.pow(r, 5) + Math.pow(r, 6));
         return (exp_base * Math.pow(r, 13) * 700000) / sample.reg.population;
     },
-    {}
-);
-
-metrics.add(
-    "incidence-rki",
-    (sample) => {
-        return (sample.measures.cases_w_0 * 100000) / sample.reg.population;
-    },
     {
-        name: "Incidence (RKI)",
+        name: "Incidence",
+        precision: 0,
         synopsis: () =>
             leaf().p(
                 leaf()
-                    .t("The average ")
-                    .a("number of cases", "{HOME}/metric/cases", (a) => {
+                    .t("The number of ")
+                    .a("new cases", "{HOME}/metric/new_cases", (a) => {
                         a.classList.add("subtle");
                     })
-                    .t(" for the past 7 days per 100.000 people.")
+                    .t(" per ")
+                    .i("700.000")
+                    .t(
+                        " people. The value is smoothed by reordering the number of daily cases over the previous 14 days so that they form an exponential curve, respecting the current value of "
+                    )
+                    .a("r", "{HOME}/metric/r", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(". The value of the last day is used to compute the incidence.")
             ),
     }
 );
@@ -111,8 +136,9 @@ metrics.add(
         return (sample.measures.deaths_total * 1000000) / sample.reg.population;
     },
     {
-        name: "Deaths (aggregate)",
-        synopsis: () => leaf().p(leaf().t("The number of deaths per 1.000.000 people.")),
+        name: "Total Number of Deaths",
+        precision: 0,
+        synopsis: () => leaf().p(leaf().t("The total number of deaths so far per ").i("1.000.000").t(" people.")),
     }
 );
 

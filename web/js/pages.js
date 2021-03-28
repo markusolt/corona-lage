@@ -111,8 +111,10 @@ router.add("/region/{}", (reg_key, args, page) => {
             return false;
         }
 
-        let selected_metrics = ["cases", "deaths", "reproduction", "incidence", "incidence-rki"].map((id) => metrics.get(id));
-        let deaths_total = api.samples({reg, day: 0})[0].measures.deaths_total;
+        let table_metrics = ["r", "incidence", "new_cases", "new_deaths"].map((id) => metrics.get(id));
+        let deaths_total = metrics.get("deaths_total").eval(api.samples({reg, day: 0})[0]);
+        let samples = api.samples({reg}).sort((a, b) => a.day.rel - b.day.rel);
+
         page.h1(reg.name)
             .p(
                 leaf()
@@ -129,21 +131,18 @@ router.add("/region/{}", (reg_key, args, page) => {
                     {name: "Date", field: "date"},
                     {name: "day", field: "week_day"},
                 ].concat(
-                    selected_metrics.map((mtrc, i) => {
+                    table_metrics.map((mtrc, i) => {
                         return {name: mtrc.link(), field: i, numeric: true, precision: mtrc.precision};
                     })
                 ),
-                api
-                    .samples({reg})
-                    .sort((a, b) => a.day.rel - b.day.rel)
-                    .map((sample) =>
-                        Object.fromEntries(
-                            [
-                                ["date", sample.day.iso],
-                                ["week_day", sample.day.week_day],
-                            ].concat(selected_metrics.map((mtrc, i) => [i, mtrc.eval(sample)]))
-                        )
+                samples.map((sample) =>
+                    Object.fromEntries(
+                        [
+                            ["date", sample.day.iso],
+                            ["week_day", sample.day.week_day],
+                        ].concat(table_metrics.map((mtrc, i) => [i, mtrc.eval(sample)]))
                     )
+                )
             );
 
         return true;
