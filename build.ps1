@@ -80,7 +80,6 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
     if (test-path -literalpath "$target_dir/api/cases/cases.csv" -pathtype leaf) {
         $sql += get-content -raw -path "./sql/cases/load.sql";
         $sql += (get-content -raw -path "./sql/cases/add.sql").replace("{date}", $date);
-        $sql += get-content -raw -path "./sql/cases/save.sql";
     } else {
         new-item -path "$target_dir/api/cases/" -itemtype directory -erroraction ignore | out-null;
 
@@ -93,8 +92,8 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
             $i = $i.adddays(1);
             $sql += $sql_step.replace("{date}", (get-date -date $i -asutc -format "o").substring(0, 10));
         }
-        $sql += get-content -raw -path "./sql/cases/save.sql";
     }
+    $sql += get-content -raw -path "./sql/cases/save.sql";
 
     $sql | sqlite3 | write-host;
 
@@ -111,7 +110,6 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/sum.csv"
     if (test-path -literalpath "$target_dir/api/cases/sum.csv" -pathtype leaf) {
         $sql += get-content -raw -path "./sql/sum/load.sql";
         $sql += (get-content -raw -path "./sql/sum/add.sql").replace("{date}", $date);
-        $sql += get-content -raw -path "./sql/sum/save.sql";
     } else {
         new-item -path "$target_dir/api/cases/" -itemtype directory -erroraction ignore | out-null;
 
@@ -124,9 +122,9 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/sum.csv"
             $i = $i.adddays(1);
             $sql += $sql_step.replace("{date}", (get-date -date $i -asutc -format "o").substring(0, 10));
         }
-        $sql += (get-content -raw -path "./sql/sum/save_21.sql").replace("{date}", $date);
-        $sql += get-content -raw -path "./sql/sum/save.sql";
     }
+    $sql += (get-content -raw -path "./sql/sum/save_21.sql").replace("{date}", $date);
+    $sql += get-content -raw -path "./sql/sum/save.sql";
 
     $sql | sqlite3 | write-host;
 
