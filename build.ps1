@@ -78,7 +78,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
     $sql = "";
 
     if (test-path -literalpath "$target_dir/api/cases/cases.csv" -pathtype leaf) {
-        $sql += get-content -raw -path "./sql/cases/load.sql";
+        $sql += (get-content -raw -path "./sql/cases/load.sql").replace("{date}", $date);
         $sql += (get-content -raw -path "./sql/cases/add.sql").replace("{date}", $date);
     } else {
         new-item -path "$target_dir/api/cases/" -itemtype directory -erroraction ignore | out-null;
@@ -108,7 +108,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/sum.csv"
     $sql = "";
 
     if (test-path -literalpath "$target_dir/api/cases/sum.csv" -pathtype leaf) {
-        $sql += get-content -raw -path "./sql/sum/load.sql";
+        $sql += (get-content -raw -path "./sql/sum/load.sql").replace("{date}", $date);
         $sql += (get-content -raw -path "./sql/sum/add.sql").replace("{date}", $date);
     } else {
         new-item -path "$target_dir/api/cases/" -itemtype directory -erroraction ignore | out-null;
