@@ -9,8 +9,10 @@ html {
 }
 
 body {
-    color: black;
-    background-color: white;
+    --cf: black;
+    --cb: white;
+    color: var(--cf);
+    background-color: var(--cb);
     font-family: system-ui;
     font-size: 12pt;
     line-height: 1.4;
@@ -20,8 +22,8 @@ body {
 
 @media (prefers-color-scheme: dark) {
     body {
-        color: white;
-        background-color: black;
+        --cf: white;
+        --cb: black;
     }
 }
 
@@ -85,7 +87,12 @@ img {
 
 table {
     border-spacing: 0em;
-    border-collapse: collapse;
+}
+
+th {
+    position: sticky;
+    top: 0px;
+    background-color: var(--cb);
 }
 
 th,
@@ -93,7 +100,7 @@ td {
     padding: 0.5em 1em;
     font-size: .8em;
     max-width: 250px;
-    border: 1px solid;
+    border-bottom: 1px solid;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -107,7 +114,8 @@ td.num {
 .wide {
     margin: 0em -2em;
     width: calc(100% + 2em + 2em);
-    overflow-x: auto;
+    max-height: calc(100vh - 15em);
+    overflow: auto;
 }
 
 .padded {
@@ -133,7 +141,7 @@ td.num {
     -webkit-appearance: none;
 }
 
-.num {
+span.num {
     margin: 0em .4em;
     white-space: nowrap;
 }
