@@ -111,7 +111,9 @@ router.add("/region/{}", (reg_key, args, page) => {
             return false;
         }
 
-        let table_metrics = ["r", "incidence", "deaths_incidence", "new_cases", "new_deaths"].map((id) => metrics.get(id));
+        let table_metrics = ["r", "incidence", "deaths_incidence", "new_cases", "new_cases_7d", "new_deaths", "new_deaths_7d"].map((id) =>
+            metrics.get(id)
+        );
         let deaths_total = metrics.get("deaths_total").eval(api.samples({reg, day: 0})[0]);
         let samples = api.samples({reg}).sort((a, b) => a.day.rel - b.day.rel);
 
