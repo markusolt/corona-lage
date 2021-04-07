@@ -2,22 +2,30 @@ $target_dir = "../web";
 
 $new_cases = $false;
 
-# download RKI
-new-item -path "./cache/" -itemtype directory -erroraction ignore | out-null;
+function download_daily_arcgis($id, $name) {
+    new-item -path "./cache/$name/" -itemtype directory -erroraction ignore | out-null;
+    $resp = (invoke-webrequest -uri "https://opendata.arcgis.com/datasets/$id.csv?url_only=true").content | convertfrom-json;
+    if (-not $resp.upToDate) {
+        write-error -message "download of `"$name`" is not available!";
+        return;
+    }
 
-$resp = (invoke-webrequest -uri "https://opendata.arcgis.com/datasets/dd4580c810204019a7b8eb3e0b329dd6_0.csv?url_only=true").content | convertfrom-json;
-if (-not $resp.upToDate) {
-    write-error -message "download of `"rki_cases.csv`" is not available!";
-    return;
+    $timestamp = $resp.sourceLastModified.tostring("o");
+    $date = $timestamp.substring(0, 10);
+    if ($timestamp -ne ("" + (get-content -path "./cache/$name/timestamp" -raw -erroraction ignore)).trim()) {
+        write-host -message "downloading `"$name/$date.csv`"";
+        invoke-webrequest -uri $resp.url -outfile "./cache/$name/$date.csv" -erroraction stop;
+        $timestamp | set-content -path "./cache/$name/timestamp";
+        return $true;
+    }
+
+    return $false;
 }
 
-$timestamp = $resp.sourceLastModified.tostring("o");
-$date = $timestamp.substring(0, 10);
-if ($timestamp -ne ("" + (get-content -path "./cache/rki/timestamp" -raw -erroraction ignore)).trim()) {
-    invoke-webrequest -uri $resp.url -outfile "./cache/rki/$date.csv" -erroraction stop;
-    $timestamp | set-content -path "./cache/rki/timestamp";
-    $new_cases = $true;
-}
+download_daily_arcgis "ef4b445a53c1406892257fe63129a8ea_0" "bundeslander" | out-null;
+download_daily_arcgis "917fc37a709542548cc3be077a786c17_0" "landkreise" | out-null
+download_daily_arcgis "8fc79b6cf7054b1b80385bda619f39b8_0" "intensivregister" | out-null
+$new_cases = download_daily_arcgis "dd4580c810204019a7b8eb3e0b329dd6_0" "rki";
 
 # create regions.csv
 if (-not (test-path -literalpath "$target_dir/api/regions/regions.csv" -pathtype leaf)) {
