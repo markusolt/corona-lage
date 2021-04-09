@@ -6,8 +6,8 @@ function download_daily_arcgis($id, $name) {
     new-item -path "./cache/$name/" -itemtype directory -erroraction ignore | out-null;
     $resp = (invoke-webrequest -uri "https://opendata.arcgis.com/datasets/$id.csv?url_only=true").content | convertfrom-json;
     if (-not $resp.upToDate) {
-        write-error -message "download of `"$name`" is not available!";
-        return;
+        $host.UI.WriteErrorLine("download of `"$name`" not available!");
+        return $false
     }
 
     $timestamp = $resp.sourceLastModified.tostring("o");
@@ -16,7 +16,8 @@ function download_daily_arcgis($id, $name) {
         write-host -message "downloading `"$name/$date.csv`"";
         invoke-webrequest -uri $resp.url -outfile "./cache/$name/$date.csv" -erroraction stop;
         $timestamp | set-content -path "./cache/$name/timestamp";
-        return $true;
+
+        return $date;
     }
 
     return $false;
@@ -25,7 +26,12 @@ function download_daily_arcgis($id, $name) {
 download_daily_arcgis "ef4b445a53c1406892257fe63129a8ea_0" "bundeslander" | out-null;
 download_daily_arcgis "917fc37a709542548cc3be077a786c17_0" "landkreise" | out-null
 download_daily_arcgis "8fc79b6cf7054b1b80385bda619f39b8_0" "intensivregister" | out-null
-$new_cases = download_daily_arcgis "dd4580c810204019a7b8eb3e0b329dd6_0" "rki";
+
+$date = download_daily_arcgis "dd4580c810204019a7b8eb3e0b329dd6_0" "rki";
+if ($date -eq $false) {
+    return;
+}
+$new_cases = $true;
 
 # create regions.csv
 if (-not (test-path -literalpath "$target_dir/api/regions/regions.csv" -pathtype leaf)) {
