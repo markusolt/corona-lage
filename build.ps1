@@ -7,7 +7,7 @@ function download_daily_arcgis($id, $name) {
     $resp = (invoke-webrequest -uri "https://opendata.arcgis.com/datasets/$id.csv?url_only=true").content | convertfrom-json;
     if (-not $resp.upToDate) {
         $host.UI.WriteErrorLine("download of `"$name`" not available!");
-        return $false
+        return $false;
     }
 
     $timestamp = $resp.sourceLastModified.tostring("o");
@@ -29,7 +29,15 @@ download_daily_arcgis "8fc79b6cf7054b1b80385bda619f39b8_0" "intensivregister" | 
 
 $date = download_daily_arcgis "dd4580c810204019a7b8eb3e0b329dd6_0" "rki";
 if ($date -eq $false) {
-    return;
+    if ($false) {
+        $date = (get-date -asutc -format "o").substring(0, 10);
+
+        write-host -message "downloading `"rki/$date.csv`" from alternate source";
+        invoke-webrequest -uri "https://www.arcgis.com/sharing/rest/content/items/f10774f1c63e40168479a1feb6c7ca74/data" -outfile "./cache/rki/$date.csv" -erroraction stop;
+        copy-item -literalpath "./cache/rki/$date.csv" -destination "./cache/rki/$date (alt).csv";
+    } else {
+        return;
+    }
 }
 $new_cases = $true;
 
