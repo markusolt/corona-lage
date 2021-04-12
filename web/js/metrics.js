@@ -241,12 +241,12 @@ metrics.add(
 metrics.add(
     "deaths_total",
     (sample) => {
-        return (sample.measures.deaths_total * 1000000) / sample.reg.population;
+        return sample.measures.deaths_total;
     },
     {
         name: "Total Number of Deaths",
         precision: 0,
-        synopsis: () => leaf().p(leaf().t("The total number of deaths so far per ").i("1.000.000").t(" people.")),
+        synopsis: () => leaf().p(leaf().t("The total number of ").i("Covid-19").t(" related deaths.")),
     }
 );
 
