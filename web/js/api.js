@@ -58,6 +58,8 @@ class Api {
             let cases = Number(rec.cases);
             let cases_w_0 = Number(rec.cases_week_0);
             let cases_w_7 = Number(rec.cases_week_7);
+            let cases_md_w_0 = Number(rec.cases_md_week_0);
+            let cases_md_w_7 = Number(rec.cases_md_week_7);
             let cases_total = Number(rec.cases_total);
             let deaths = Number(rec.deaths);
             let deaths_w_0 = Number(rec.deaths_week_0);
@@ -71,6 +73,8 @@ class Api {
                     cases,
                     cases_w_0,
                     cases_w_7,
+                    cases_md_w_0,
+                    cases_md_w_7,
                     cases_total,
                     deaths,
                     deaths_w_0,

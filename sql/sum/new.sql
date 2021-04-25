@@ -17,6 +17,8 @@ create table cases_sum (
     cases_rep_past,
     cases_week_0,
     cases_week_7,
+    cases_md_week_0,
+    cases_md_week_7,
     cases_total,
     deaths,
     deaths_week_0,

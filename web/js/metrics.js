@@ -181,6 +181,26 @@ metrics.add(
 );
 
 metrics.add(
+    "incidence_rki",
+    (sample) => {
+        return (sample.measures.cases_md_w_0 * 100000) / sample.reg.population;
+    },
+    {
+        name: "Incidence (RKI)",
+        precision: 0,
+        synopsis: () =>
+            leaf().p(
+                leaf()
+                    .t("The incidence rate of ")
+                    .i("Covid-19")
+                    .t(" that is reported by the ")
+                    .a("RKI", "https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html")
+                    .t(" on this day.")
+            ),
+    }
+);
+
+metrics.add(
     "deaths_r",
     (sample) => {
         return Math.pow(Math.max(0, sample.measures.deaths_w_0) / Math.max(1, sample.measures.deaths_w_7), 5 / 7);

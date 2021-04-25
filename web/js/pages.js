@@ -114,6 +114,7 @@ router.add("/region/{}", (reg_key, args, page) => {
         let table_metrics = [
             "r",
             "incidence",
+            "incidence_rki",
             "deaths_r",
             "deaths_incidence",
             "new_cases",

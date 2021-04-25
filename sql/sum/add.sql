@@ -13,6 +13,8 @@ select
     ifnull(rep.cases_rep_past, 0),
     ifnull(acc.cases_week_0, 0),
     ifnull(acc.cases_week_7, 0),
+    ifnull(md.cases_md_week_0, 0),
+    ifnull(md.cases_md_week_7, 0),
     ifnull(acc.cases_total, 0),
     ifnull(rep.deaths, 0),
     ifnull(acc.deaths_week_0, 0),
@@ -48,4 +50,14 @@ left outer join (
     where c.date <= date('{date}')
     group by c.region
 ) as 'acc'
-    on acc.region = r.key;
+    on acc.region = r.key
+left outer join (
+    select
+        c.region,
+        sum(c.cases * case when c.rep_date >= date('{date}', '-7 day') and c.rep_date < date('{date}', '-0 day') then 1 else 0 end) as 'cases_md_week_0',
+        sum(c.cases * case when c.rep_date >= date('{date}', '-14 day') and c.rep_date < date('{date}', '-7 day') then 1 else 0 end) as 'cases_md_week_7'
+    from cases as 'c'
+    where c.date <= date('{date}')
+    group by c.region
+) as 'md'
+    on md.region = r.key;
