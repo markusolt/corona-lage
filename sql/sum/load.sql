@@ -23,7 +23,10 @@ select
     deaths,
     deaths_week_0,
     deaths_week_7,
-    deaths_total
+    deaths_total,
+    care_patients,
+    care_patients_vent,
+    care_capacity
 from cases_sum_csv
 where date < date('{date}');
 
@@ -46,6 +49,20 @@ inner join cases_csv as 'c'
     on substr(c.region, 1, length(r.key)) = r.key
 group by r.key, c.date, c.rep_date;
 
+.import '../web/api/care/care.csv' care_csv
+create table care as
+select
+    r.key as 'region',
+    c.date,
+    ifnull(sum(c.patients), 0) as 'patients',
+    ifnull(sum(c.patients_vent), 0) as 'patients_vent',
+    ifnull(sum(c.capacity), 0) as 'capacity'
+from regions as 'r'
+inner join care_csv as 'c'
+    on substr(c.region, 1, length(r.key)) = r.key
+group by r.key, c.date;
+
 drop table cases_sum_csv;
 drop table regions_csv;
 drop table cases_csv;
+drop table care_csv;

@@ -17,7 +17,10 @@ select
     deaths,
     deaths_week_0,
     deaths_week_7,
-    deaths_total
+    deaths_total,
+    care_patients,
+    care_patients_vent,
+    care_capacity
 from cases_sum
 where date > date('{date}', '-21 day')
 order by region asc, date desc;

@@ -65,6 +65,9 @@ class Api {
             let deaths_w_0 = Number(rec.deaths_week_0);
             let deaths_w_7 = Number(rec.deaths_week_7);
             let deaths_total = Number(rec.deaths_total);
+            let care_patients = Number(rec.care_patients);
+            let care_patients_vent = Number(rec.care_patients_vent);
+            let care_capacity = Number(rec.care_capacity);
 
             samples.push({
                 reg,
@@ -80,6 +83,9 @@ class Api {
                     deaths_w_0,
                     deaths_w_7,
                     deaths_total,
+                    care_patients,
+                    care_patients_vent,
+                    care_capacity,
                 },
             });
         }

@@ -17,6 +17,9 @@ select
     deaths,
     deaths_week_0,
     deaths_week_7,
-    deaths_total
+    deaths_total,
+    cast(care_patients as int) as 'care_patients',
+    cast(care_patients_vent as int) as 'care_patients_vent',
+    cast(care_capacity as int) as 'care_capacity'
 from cases_sum
 order by region asc, date desc;

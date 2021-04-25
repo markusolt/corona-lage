@@ -19,7 +19,10 @@ select
     ifnull(rep.deaths, 0),
     ifnull(acc.deaths_week_0, 0),
     ifnull(acc.deaths_week_7, 0),
-    ifnull(acc.deaths_total, 0)
+    ifnull(acc.deaths_total, 0),
+    ifnull(care.patients, 0),
+    ifnull(care.patients_vent, 0),
+    ifnull(care.capacity, 0)
 from regions as 'r'
 left outer join (
     select
@@ -60,4 +63,7 @@ left outer join (
     where c.date <= date('{date}')
     group by c.region
 ) as 'md'
-    on md.region = r.key;
+    on md.region = r.key
+left outer join care as 'care'
+    on care.region = r.key
+    and care.date = date('{date}');

@@ -25,7 +25,37 @@ function download_daily_arcgis($id, $name) {
 
 download_daily_arcgis "ef4b445a53c1406892257fe63129a8ea_0" "bundeslander" | out-null;
 download_daily_arcgis "917fc37a709542548cc3be077a786c17_0" "landkreise" | out-null
-download_daily_arcgis "8fc79b6cf7054b1b80385bda619f39b8_0" "intensivregister" | out-null
+
+# update care.csv
+$date_intensivregister = download_daily_arcgis "8fc79b6cf7054b1b80385bda619f39b8_0" "intensivregister" | out-null
+if ($date_intensivregister) {
+    write-host -message "`"./api/care/care.csv`":";
+
+    $date_first = "2021-04-07";
+    $sql = "";
+
+    if (test-path -literalpath "$target_dir/api/care/care.csv" -pathtype leaf) {
+        $sql += (get-content -raw -path "./sql/care/load.sql").replace("{date}", $date_intensivregister);
+        $sql += (get-content -raw -path "./sql/care/add.sql").replace("{date}", $date_intensivregister);
+    } else {
+        new-item -path "$target_dir/api/care/" -itemtype directory -erroraction ignore | out-null;
+
+        $sql += (get-content -raw -path "./sql/care/new.sql").replace("{date}", $date_first);
+        $sql_step = get-content -raw -path "./sql/care/add.sql";
+
+        $i = (get-date -date $date_first).addhours(12);
+        $date_last = get-date -date $date_intensivregister;
+        while ($i -lt $date_last) {
+            $i = $i.adddays(1);
+            $sql += $sql_step.replace("{date}", (get-date -date $i -asutc -format "o").substring(0, 10));
+        }
+    }
+    $sql += get-content -raw -path "./sql/care/save.sql";
+
+    $sql | sqlite3 | write-host;
+
+    $new_cases = $true;
+}
 
 $date = download_daily_arcgis "dd4580c810204019a7b8eb3e0b329dd6_0" "rki";
 if ($date -eq $false) {

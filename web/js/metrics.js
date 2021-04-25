@@ -270,4 +270,16 @@ metrics.add(
     }
 );
 
+metrics.add(
+    "care_occupancy",
+    (sample) => {
+        return sample.measures.care_capacity > 0 ? (sample.measures.care_patients / sample.measures.care_capacity) * 100 : null;
+    },
+    {
+        name: "Intensive Care Occupancy",
+        precision: 0,
+        synopsis: () => leaf().p(leaf().t("The percentage of intensive care beds occupied by ").i("Covid-19").t(" patients.")),
+    }
+);
+
 return metrics;

@@ -117,6 +117,7 @@ router.add("/region/{}", (reg_key, args, page) => {
             "incidence_rki",
             "deaths_r",
             "deaths_incidence",
+            "care_occupancy",
             "new_cases",
             "new_cases_7d",
             "new_deaths",
@@ -199,7 +200,7 @@ router.add("/metric/{}", (metric_name, args, page) => {
                             a.classList.add("subtle");
                         })
                         .t(": ")
-                        .b(rec.val.toFixed(mtrc.precision));
+                        .b(Number.isFinite(rec.val) ? rec.val.toFixed(mtrc.precision) : "-");
 
                     node.appendChild(li);
                 }
