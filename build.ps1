@@ -28,6 +28,8 @@ download_daily_arcgis "917fc37a709542548cc3be077a786c17_0" "landkreise" | out-nu
 download_daily_arcgis "8fc79b6cf7054b1b80385bda619f39b8_0" "intensivregister" | out-null
 
 $date = download_daily_arcgis "dd4580c810204019a7b8eb3e0b329dd6_0" "rki";
+# bash -c "xsv select ""IdLandkreis,Meldedatum,Altersgruppe,Geschlecht,AnzahlFall,NeuerFall,AnzahlTodesfall,NeuerTodesfall"" ""cache/rki/$d.csv"" > ""cache/rki/select/$d.csv""";
+
 if ($date -eq $false) {
     if ($false) {
         $date = (get-date -asutc -format "o").substring(0, 10);
@@ -96,7 +98,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
     write-host -message "`"./api/cases/cases.csv`":";
 
     # todo: automatically determine first date based on contents of "./cache/rki/"
-    $date_first = "2020-10-31";
+    $date_first = "2020-10-23";
     $sql = "";
 
     if (test-path -literalpath "$target_dir/api/cases/cases.csv" -pathtype leaf) {
@@ -126,7 +128,7 @@ if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/cases.cs
 if ($new_cases -or (-not (test-path -literalpath "$target_dir/api/cases/sum.csv" -pathtype leaf))) {
     write-host -message "`"./api/cases/sum.csv`":";
 
-    $date_first = "2020-10-31";
+    $date_first = "2020-11-05";
     $sql = "";
 
     if (test-path -literalpath "$target_dir/api/cases/sum.csv" -pathtype leaf) {
