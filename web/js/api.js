@@ -23,7 +23,7 @@ class Api {
         }
 
         let p_regions = fetch_csv("{HOME}/api/regions/regions.csv?v=" + updated.replace(/[^0-9]/g, ""));
-        let p_cases = fetch_csv("{HOME}/api/cases/sum.csv?v=" + updated.replace(/[^0-9]/g, ""));
+        let p_cases = fetch_csv("{HOME}/api/cases/sum_21.csv?v=" + updated.replace(/[^0-9]/g, ""));
 
         let regions = new Map();
         let regions_index = hay();

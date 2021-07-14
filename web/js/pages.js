@@ -26,6 +26,46 @@ router.add("/", (args, page) => {
                 });
             }
         )
+        .h2("Downloads")
+        .p(
+            leaf()
+                .t("You are welcome to download the data directly as ")
+                .i("csv")
+                .t(" files. These files are updated every day some time in the morning. You can check ")
+                .a("here", "{HOME}/api/updated")
+                .t(" to see when these files were last updated. Here is a short overview of the available tables.")
+        )
+        .ul([
+            leaf()
+                .a("regions.csv", "{HOME}/api/regions/regions.csv")
+                .p(leaf().t("Definitions of the ").i("412").t(" counties and ").i("17").t(" hierarchy regions.")),
+            leaf()
+                .a("cases.csv", "{HOME}/api/cases/cases.csv")
+                .p(
+                    leaf()
+                        .t("The raw source data listing all cases and deaths published by the RKI since ")
+                        .i("2020-10-24")
+                        .t(". Cases and deaths published before that date are also included, but their value in the ")
+                        .i("date")
+                        .t(
+                            " column is null. This column documents when a case was first published by the RKI, which is not always the day after the "
+                        )
+                        .i("rep_date")
+                        .t(". Please be aware that this is a very large table and can probably not be opened in Excel.")
+                ),
+            leaf()
+                .a("sum.csv", "{HOME}/api/cases/sum.csv")
+                .p(
+                    leaf()
+                        .t(
+                            "This is a convinient table that summarizes the published cases and deaths by region and publishing date. The information about gender and age group is not available. To experiment with this table it is recommended to use "
+                        )
+                        .a("sum_21.csv", "{HOME}/api/cases/sum_21.csv")
+                        .t(" which only contains data for the past ")
+                        .i("21")
+                        .t(" days.")
+                ),
+        ])
         .h2("Experiments")
         .p(
             leaf().t(
@@ -111,18 +151,7 @@ router.add("/region/{}", (reg_key, args, page) => {
             return false;
         }
 
-        let table_metrics = [
-            "r",
-            "incidence",
-            "incidence_rki",
-            "deaths_r",
-            "deaths_incidence",
-            "new_cases",
-            "new_cases_7d",
-            "new_deaths",
-            "new_deaths_7d",
-        ].map((id) => metrics.get(id));
-        let deaths_total = metrics.get("deaths_total").eval(api.samples({reg, day: 0})[0]);
+        let table_metrics = ["incidence_rki", "r", "deaths_r", "new_cases", "new_deaths"].map((id) => metrics.get(id));
         let samples = api.samples({reg}).sort((a, b) => a.day.rel - b.day.rel);
 
         page.h1(reg.name)
@@ -130,11 +159,7 @@ router.add("/region/{}", (reg_key, args, page) => {
                 leaf()
                     .t(reg.name + " is a region with a population of ")
                     .append(fmt_int(reg.population))
-                    .t(" people. So far, ")
-                    .append(fmt_int(deaths_total))
-                    .t(" have lost their lives in relation to ")
-                    .i("Covid-19")
-                    .t(". Many more had their lives permanently changed for the worse.")
+                    .t(" people.")
             )
             .table(
                 [
@@ -173,11 +198,6 @@ router.add("/metric/{}", (metric_name, args, page) => {
 
     page.h1(mtrc.name)
         .append(mtrc.synopsis())
-        .p(
-            leaf()
-                .a("Tell me more", "{HOME}/metric/" + mtrc.id + "/explanation")
-                .t(".")
-        )
         .h3("Regions")
         .ul([], (node) => {
             api.then((api) => {
@@ -228,6 +248,7 @@ function fmt_int(num) {
     let ret = document.createElement("span");
     ret.classList.add("num");
     ret.textContent = num.toFixed(0).replace(/(\d)(?=(\d\d\d)+(\D|$))/g, "$1 ");
+
     return ret;
 }
 

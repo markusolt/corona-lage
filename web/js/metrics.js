@@ -42,7 +42,7 @@ metrics.add(
         return sample.measures.cases;
     },
     {
-        name: "New Cases",
+        name: "Cases",
         precision: 0,
         synopsis: () =>
             leaf().p(
@@ -53,7 +53,9 @@ metrics.add(
                     .i("RKI")
                     .t(" on this day with a reporting date that is no older than ")
                     .i("five days")
-                    .t(".")
+                    .t(". Cases published more than ")
+                    .i("five days")
+                    .t(" after their reporting date are ignored.")
             ),
     }
 );
@@ -64,25 +66,19 @@ metrics.add(
         return sample.measures.cases_w_0;
     },
     {
-        name: "New Cases (7 days)",
+        name: "Cases (7 days)",
         precision: 0,
         synopsis: () =>
-            leaf()
-                .p(
-                    leaf()
-                        .t("The number of ")
-                        .a("new cases", "{HOME}/metric/new_cases", (a) => {
-                            a.classList.add("subtle");
-                        })
-                        .t(" during the past ")
-                        .i("seven days")
-                        .t(". This value is the absolute number of cases, and is not adjusted for population size.")
-                )
-                .p(
-                    leaf().t(
-                        "The rolling 7 day sum is useful, because it compensates any predictable weekly fluctuation in the source data."
-                    )
-                ),
+            leaf().p(
+                leaf()
+                    .t("The number of ")
+                    .a("cases", "{HOME}/metric/new_cases", (a) => {
+                        a.classList.add("subtle");
+                    })
+                    .t(" during the past ")
+                    .i("seven days")
+                    .t(". This value is the absolute number of cases, and is not adjusted for population size.")
+            ),
     }
 );
 
@@ -92,9 +88,10 @@ metrics.add(
         return sample.measures.deaths;
     },
     {
-        name: "New Deaths",
+        name: "Deaths",
         precision: 0,
-        synopsis: () => leaf().p(leaf().t("The number of new deaths related to ").i("Covid-19").t(" published by the ").i("RKI").t(".")),
+        synopsis: () =>
+            leaf().p(leaf().t("The number of new deaths related to ").i("Covid-19").t(" published by the ").i("RKI").t(" on this day.")),
     }
 );
 
@@ -104,13 +101,13 @@ metrics.add(
         return sample.measures.deaths_w_0;
     },
     {
-        name: "New Deaths (7 days)",
+        name: "Deaths (7 days)",
         precision: 0,
         synopsis: () =>
             leaf().p(
                 leaf()
                     .t("The number of ")
-                    .a("new deaths", "{HOME}/metric/new_deaths", (a) => {
+                    .a("deaths", "{HOME}/metric/new_deaths", (a) => {
                         a.classList.add("subtle");
                     })
                     .t(" during the past ")
@@ -131,18 +128,18 @@ metrics.add(
         synopsis: () =>
             leaf().p(
                 leaf()
-                    .t("The rate of reproduction is the factor by which the number of ")
-                    .a("new cases", "{HOME}/metric/new_cases", (a) => {
+                    .t("The ")
+                    .i("rate of reproduction")
+                    .t(" is the factor by which the number of ")
+                    .a("cases", "{HOME}/metric/new_cases", (a) => {
                         a.classList.add("subtle");
                     })
-                    .t(" is multiplied by every ")
+                    .t(" seems to multiply by every ")
                     .i("five days")
-                    .t(". You can expect the ")
-                    .a("incidence", "{HOME}/metric/incidence", (a) => {
-                        a.classList.add("subtle");
-                    })
-                    .t(" to multiply by this factor every ")
-                    .i("five days")
+                    .t(". It is computed by comparing the total number of cases of the past ")
+                    .i("7 days")
+                    .t(" with the total number of cases of the prior ")
+                    .i("7 days")
                     .t(".")
             ),
     }
@@ -158,25 +155,34 @@ metrics.add(
         return (exp_base * Math.pow(r, 13) * 700000) / sample.reg.population;
     },
     {
-        name: "Incidence",
+        name: "Incidence (Exp)",
         precision: 0,
         synopsis: () =>
-            leaf().p(
-                leaf()
-                    .t("The number of ")
-                    .a("new cases", "{HOME}/metric/new_cases", (a) => {
-                        a.classList.add("subtle");
-                    })
-                    .t(" per ")
-                    .i("700.000")
-                    .t(
-                        " people. The value is smoothed by reordering the number of daily cases over the previous 14 days so that they form an exponential curve, respecting the current value of "
-                    )
-                    .a("r", "{HOME}/metric/r", (a) => {
-                        a.classList.add("subtle");
-                    })
-                    .t(". The value of the last day is used to compute the incidence.")
-            ),
+            leaf()
+                .p(
+                    leaf()
+                        .t("The number of ")
+                        .a("cases", "{HOME}/metric/new_cases", (a) => {
+                            a.classList.add("subtle");
+                        })
+                        .t(" per ")
+                        .i("700.000")
+                        .t(
+                            " people. The value is smoothed by reordering the number of daily cases over the previous 14 days so that they form an exponential curve, respecting the current value of "
+                        )
+                        .a("r", "{HOME}/metric/r", (a) => {
+                            a.classList.add("subtle");
+                        })
+                        .t(". The value of the last day is used to compute the incidence.")
+                )
+                .p(
+                    leaf()
+                        .t("This is different from the ")
+                        .a("official incidence", "{HOME}/metric/incidence_rki", (a) => {
+                            a.classList.add("subtle");
+                        })
+                        .t(".")
+                ),
     }
 );
 
@@ -186,16 +192,16 @@ metrics.add(
         return (sample.measures.cases_md_w_0 * 100000) / sample.reg.population;
     },
     {
-        name: "Incidence (RKI)",
+        name: "Incidence",
         precision: 0,
         synopsis: () =>
             leaf().p(
                 leaf()
-                    .t("The incidence rate of ")
+                    .t("The official incidence of ")
                     .i("Covid-19")
-                    .t(" that is reported by the ")
+                    .t(" as reported by the ")
                     .a("RKI", "https://www.rki.de/DE/Content/InfAZ/N/Neuartiges_Coronavirus/Fallzahlen.html")
-                    .t(" on this day.")
+                    .t(".")
             ),
     }
 );
@@ -206,51 +212,21 @@ metrics.add(
         return Math.pow(Math.max(0, sample.measures.deaths_w_0) / Math.max(1, sample.measures.deaths_w_7), 5 / 7);
     },
     {
-        name: "R (5 days) (Deaths)",
+        name: "R (Deaths)",
         precision: 2,
         synopsis: () =>
             leaf().p(
                 leaf()
-                    .t("The rate of reproduction of deaths is the factor by which the number of ")
-                    .a("new deaths", "{HOME}/metric/new_deaths", (a) => {
+                    .t("The ")
+                    .i("rate of reproduction of deaths")
+                    .t(" is the factor by which the number of ")
+                    .a("deaths", "{HOME}/metric/new_deaths", (a) => {
                         a.classList.add("subtle");
                     })
-                    .t(" is multiplied by every ")
+                    .t(" seems to multiply by every ")
                     .i("five days")
-                    .t(".")
-            ),
-    }
-);
-
-metrics.add(
-    "deaths_incidence",
-    (sample) => {
-        let r = Math.pow(Math.max(0, sample.measures.deaths_w_0) / Math.max(1, sample.measures.deaths_w_7), 1 / 7);
-        let exp_base =
-            Math.max(1, sample.measures.deaths_w_7) /
-            (Math.pow(r, 0) + Math.pow(r, 1) + Math.pow(r, 2) + Math.pow(r, 3) + Math.pow(r, 4) + Math.pow(r, 5) + Math.pow(r, 6));
-        return (exp_base * Math.pow(r, 13) * 100 * 700000) / sample.reg.population;
-    },
-    {
-        name: "Incidence (Deaths)",
-        precision: 0,
-        synopsis: () =>
-            leaf().p(
-                leaf()
-                    .t("The number of ")
-                    .a("new deaths", "{HOME}/metric/new_deaths", (a) => {
-                        a.classList.add("subtle");
-                    })
-                    .t(" per ")
-                    .i("70.000.000")
-                    .t(" (")
-                    .i("100 * 700.000")
-                    .t(") people. Similar to the ")
-                    .a("incidence of cases", "{HOME}/metric/incidence", (a) => {
-                        a.classList.add("subtle");
-                    })
-                    .t(", but based on the number of ")
-                    .a("new deaths", "{HOME}/metric/new_deaths", (a) => {
+                    .t(". This is similar to the metric ")
+                    .a("R", "{HOME}/metric/r", (a) => {
                         a.classList.add("subtle");
                     })
                     .t(".")

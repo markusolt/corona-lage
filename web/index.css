@@ -10,6 +10,7 @@ html {
 
 body {
     --cf: black;
+    --cf2: #ccc;
     --cb: white;
     color: var(--cf);
     background-color: var(--cb);
@@ -23,6 +24,7 @@ body {
 @media (prefers-color-scheme: dark) {
     body {
         --cf: white;
+        --cf2: #333;
         --cb: black;
     }
 }
@@ -100,7 +102,7 @@ td {
     padding: 0.5em 1em;
     font-size: .8em;
     max-width: 250px;
-    border-bottom: 1px solid;
+    border-bottom: 1px solid var(--cf2);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
