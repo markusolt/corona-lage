@@ -39,7 +39,7 @@ const router = use.router;
     let origin = location.origin + "{HOME}";
     spa.install(
         (url) => {
-            if (url.startsWith(origin)) {
+            if (url.startsWith(origin) && !url.startsWith(origin + "/api/")) {
                 let rel_url = url.substring(origin.length);
 
                 let {path, query, tag} = /^(?<path>[^\?#]*)(\?(?<query>[^#]*))?(#(?<tag>.*))?$/.exec(rel_url).groups;
