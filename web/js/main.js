@@ -34,6 +34,11 @@ const router = use.router;
         .t("author: ")
         .a("markus", "mailto:markus@blaumond.net", (node) => {
             node.classList.add("subtle");
+        })
+        .br()
+        .a("refresh", "", (node) => {
+            node.classList.add("subtle");
+            node.classList.add("no-spa");
         });
 
     let origin = location.origin + "{HOME}";

@@ -116,7 +116,7 @@ td.num {
 .wide {
     margin: 0em -2em;
     width: calc(100% + 2em + 2em);
-    max-height: calc(100vh - 15em);
+    max-height: max(50vh, calc(100vh - 20em));
     overflow: auto;
 }
 

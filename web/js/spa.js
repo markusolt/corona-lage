@@ -15,6 +15,7 @@ window.addEventListener("click", (event) => {
         event.metaKey === false &&
         event.shiftKey === false &&
         Boolean((anchor = nearest_anchor(event.target))) &&
+        !anchor.classList.contains("no-spa") &&
         Boolean((args = _filter(anchor.href)))
     ) {
         event.preventDefault();

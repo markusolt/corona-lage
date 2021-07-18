@@ -31,7 +31,26 @@ router.add("/", (args, page) => {
             leaf()
                 .t("You are welcome to download the data directly as ")
                 .i("csv")
-                .t(" files. These files are updated every day some time in the morning. You can check ")
+                .t(" files. These files are updated every day at some time in the morning. The last update was ")
+                .i("_", (node) => {
+                    api.watch((api) => {
+                        let d_min = Math.max(0, new Date() - api.updated) / 1000 / 60;
+                        let d_hours = d_min / 60;
+                        let d_days = d_hours / 24;
+
+                        let d_str;
+                        if (Math.floor(d_days) > 0) {
+                            d_str = Math.floor(d_days) + " days";
+                        } else if (Math.floor(d_hours) > 0) {
+                            d_str = Math.floor(d_hours) + " hours";
+                        } else {
+                            d_str = Math.ceil(d_min) + " minutes";
+                        }
+
+                        node.textContent = d_str;
+                    });
+                })
+                .t(" ago. You can check ")
                 .a("here", "{HOME}/api/updated")
                 .t(" to see when these files were last updated. Here is a short overview of the available tables.")
         )
